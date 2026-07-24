@@ -164,8 +164,8 @@ finance-app/
 │   │   │   └── settings/
 │   │   ├── (admin)/admin/
 │   │   ├── api/cron/sync-rates/
-│   │   ├── layout.tsx
-│   │   └── middleware.ts
+│   │   └── layout.tsx
+│   ├── proxy.ts                  # Next.js 16: antes middleware.ts
 │   │
 │   ├── features/
 │   │   ├── transactions/      # components/ actions.ts use-cases.ts repository.ts schemas.ts
@@ -185,7 +185,7 @@ finance-app/
 │   │   └── alerts.ts
 │   │
 │   ├── lib/
-│   │   ├── supabase/          # server.ts client.ts middleware.ts admin.ts
+│   │   ├── supabase/          # server.ts client.ts proxy.ts admin.ts
 │   │   ├── i18n/
 │   │   └── utils/
 │   │
@@ -240,6 +240,10 @@ Crear también `.env.example` con las mismas claves vacías, ese sí versionado.
 npx supabase migration new initial_schema
 ```
 
+> **Nota:** el CLI crea las migraciones en `supabase/migrations/` (ruta que lee
+> `supabase db push`), no en `db/migrations/`. Se respeta la convención del CLI;
+> `db/migrations/` queda solo como referencia y `db/seed.sql` para datos demo.
+
 Orden de creación dentro del archivo:
 
 1. Extensiones — `pgcrypto`, `pg_trgm`
@@ -278,7 +282,9 @@ Tres archivos en `src/lib/supabase/`:
 | `server.ts` | Server Components y Server Actions (lee cookies) | anon             |
 | `admin.ts`  | Solo panel admin, solo servidor                  | **service_role** |
 
-Y `src/app/middleware.ts` para refrescar la sesión y proteger rutas.
+Y `src/proxy.ts` para refrescar la sesión y proteger rutas. **Next.js 16 renombró
+`middleware.ts` a `proxy.ts`** (misma función, exporta `proxy` en vez de `middleware`);
+va en `src/`, al mismo nivel que `app/`, no dentro de `app/`.
 
 > No mezclar el cliente de servidor con el de navegador. Es el error más común y produce sesiones fantasma difíciles de depurar.
 
