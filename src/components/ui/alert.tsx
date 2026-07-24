@@ -1,69 +1,54 @@
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
+'use client';
 
-import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { AlertTriangle, XCircle, X } from 'lucide-react';
+import { cn } from '@/lib/cn';
 
-const alertVariants = cva(
-  "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
-  {
-    variants: {
-      variant: {
-        default: 'bg-card text-card-foreground',
-        destructive:
-          'bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  },
-);
+type Level = 'warning' | 'critical';
 
-function Alert({
-  className,
-  variant,
-  ...props
-}: React.ComponentProps<'div'> & VariantProps<typeof alertVariants>) {
+const LEVEL: Record<Level, { border: string; bg: string; icon: string }> = {
+  warning: { border: 'border-ocre', bg: 'bg-ocre/[0.06]', icon: 'text-ocre' },
+  critical: { border: 'border-ladrillo', bg: 'bg-ladrillo/[0.06]', icon: 'text-ladrillo' },
+};
+
+type AlertProps = {
+  level?: Level;
+  children: React.ReactNode;
+  /** Si es true muestra la × para cerrarlo. */
+  dismissible?: boolean;
+  onDismiss?: () => void;
+};
+
+export function Alert({ level = 'warning', children, dismissible = true, onDismiss }: AlertProps) {
+  const t = useTranslations('alert');
+  const [open, setOpen] = useState(true);
+  if (!open) return null;
+
+  const s = LEVEL[level];
+  const Icon = level === 'critical' ? XCircle : AlertTriangle;
+
   return (
     <div
-      data-slot="alert"
-      role="alert"
-      className={cn(alertVariants({ variant }), className)}
-      {...props}
-    />
-  );
-}
-
-function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div
-      data-slot="alert-title"
-      className={cn(
-        '[&_a]:hover:text-foreground font-medium group-has-[>svg]/alert:col-start-2 [&_a]:underline [&_a]:underline-offset-3',
-        className,
+      role="status"
+      className={cn('rounded-control flex items-start gap-3 border p-3 pl-4', s.border, s.bg)}
+    >
+      <Icon aria-hidden className={cn('mt-0.5 size-[18px] shrink-0', s.icon)} />
+      {/* El texto siempre en ink: nunca en el color del acento */}
+      <p className="text-body text-ink flex-1">{children}</p>
+      {dismissible && (
+        <button
+          type="button"
+          aria-label={t('dismiss')}
+          onClick={() => {
+            setOpen(false);
+            onDismiss?.();
+          }}
+          className="text-sage hover:text-ink rounded p-0.5 transition-colors"
+        >
+          <X className="size-[18px]" />
+        </button>
       )}
-      {...props}
-    />
+    </div>
   );
 }
-
-function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div
-      data-slot="alert-description"
-      className={cn(
-        'text-muted-foreground [&_a]:hover:text-foreground text-sm text-balance md:text-pretty [&_a]:underline [&_a]:underline-offset-3 [&_p:not(:last-child)]:mb-4',
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-function AlertAction({ className, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div data-slot="alert-action" className={cn('absolute top-2 right-2', className)} {...props} />
-  );
-}
-
-export { Alert, AlertTitle, AlertDescription, AlertAction };

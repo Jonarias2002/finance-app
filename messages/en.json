@@ -1,1 +1,66 @@
-{}
+{
+  "app": {
+    "name": "FinWise",
+    "tagline": "How much you can spend today"
+  },
+  "nav": {
+    "home": "Home",
+    "transactions": "Transactions",
+    "fixedExpenses": "Fixed expenses",
+    "debts": "Debts",
+    "goals": "Goals",
+    "accounts": "Accounts",
+    "settings": "Settings",
+    "newTransaction": "Add transaction",
+    "logout": "Sign out"
+  },
+  "balanceBar": {
+    "available": "Available",
+    "reserved": "Reserved"
+  },
+  "rateStamp": {
+    "stale": "outdated",
+    "staleTitle": "Today's rate could not be updated"
+  },
+  "alert": {
+    "dismiss": "Dismiss"
+  },
+  "status": {
+    "paid": "Paid",
+    "pending": "Pending",
+    "overdue": "Overdue",
+    "done": "Done"
+  },
+  "amountInput": {
+    "amount": "Amount",
+    "currency": "Currency",
+    "rate": "rate",
+    "on": "of",
+    "change": "change"
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "signupTitle": "Create your account",
+    "subtitle": "Keep track of your money in one place.",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "At least 8 characters",
+    "submitLogin": "Sign in",
+    "submitSignup": "Create account",
+    "toSignup": "No account? Create one",
+    "toLogin": "Already have an account? Sign in",
+    "errors": {
+      "invalidEmail": "Enter a valid email.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "invalidCredentials": "Wrong email or password.",
+      "emailTaken": "That email is already registered.",
+      "generic": "Could not complete the action. Try again."
+    }
+  },
+  "dashboard": {
+    "greeting": "Hi, {name}",
+    "emptyTitle": "No transactions yet",
+    "emptyDescription": "Add your first expense or income to start seeing where your money goes.",
+    "emptyAction": "Add transaction"
+  }
+}

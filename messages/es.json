@@ -1,1 +1,66 @@
-{}
+{
+  "app": {
+    "name": "FinWise",
+    "tagline": "Cuánto puedes gastar hoy"
+  },
+  "nav": {
+    "home": "Inicio",
+    "transactions": "Movimientos",
+    "fixedExpenses": "Gastos fijos",
+    "debts": "Deudas",
+    "goals": "Metas",
+    "accounts": "Cuentas",
+    "settings": "Ajustes",
+    "newTransaction": "Registrar movimiento",
+    "logout": "Cerrar sesión"
+  },
+  "balanceBar": {
+    "available": "Disponible",
+    "reserved": "Reservado"
+  },
+  "rateStamp": {
+    "stale": "desactualizada",
+    "staleTitle": "No se pudo actualizar la tasa de hoy"
+  },
+  "alert": {
+    "dismiss": "Cerrar aviso"
+  },
+  "status": {
+    "paid": "Pagado",
+    "pending": "Pendiente",
+    "overdue": "Vencido",
+    "done": "Cumplida"
+  },
+  "amountInput": {
+    "amount": "Monto",
+    "currency": "Moneda",
+    "rate": "tasa",
+    "on": "del",
+    "change": "cambiar"
+  },
+  "auth": {
+    "loginTitle": "Inicia sesión",
+    "signupTitle": "Crea tu cuenta",
+    "subtitle": "Lleva el control de tu dinero en un solo lugar.",
+    "email": "Correo",
+    "password": "Contraseña",
+    "passwordHint": "Mínimo 8 caracteres",
+    "submitLogin": "Iniciar sesión",
+    "submitSignup": "Crear cuenta",
+    "toSignup": "¿No tienes cuenta? Crear una",
+    "toLogin": "¿Ya tienes cuenta? Inicia sesión",
+    "errors": {
+      "invalidEmail": "Escribe un correo válido.",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+      "invalidCredentials": "Correo o contraseña incorrectos.",
+      "emailTaken": "Ese correo ya está registrado.",
+      "generic": "No se pudo completar la acción. Intenta de nuevo."
+    }
+  },
+  "dashboard": {
+    "greeting": "Hola, {name}",
+    "emptyTitle": "Aún no has registrado movimientos",
+    "emptyDescription": "Registra tu primer gasto o ingreso para empezar a ver a dónde va tu dinero.",
+    "emptyAction": "Registrar movimiento"
+  }
+}
