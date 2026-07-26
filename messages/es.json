@@ -9,7 +9,10 @@
     "fixedExpenses": "Gastos fijos",
     "debts": "Deudas",
     "goals": "Metas",
+    "shopping": "Compras",
     "accounts": "Cuentas",
+    "categories": "Categorías",
+    "products": "Productos",
     "settings": "Ajustes",
     "newTransaction": "Registrar movimiento",
     "logout": "Cerrar sesión"
@@ -61,6 +64,461 @@
     "greeting": "Hola, {name}",
     "emptyTitle": "Aún no has registrado movimientos",
     "emptyDescription": "Registra tu primer gasto o ingreso para empezar a ver a dónde va tu dinero.",
-    "emptyAction": "Registrar movimiento"
+    "emptyAction": "Registrar movimiento",
+    "ranges": {
+      "label": "Periodo",
+      "week": "Semana",
+      "month": "Mes",
+      "3m": "3 meses",
+      "6m": "6 meses"
+    },
+    "kpi": {
+      "available": "Disponible",
+      "income": "Ingresos",
+      "expense": "Gastos",
+      "net": "Neto"
+    },
+    "charts": {
+      "flow": "Ingresos y gastos",
+      "flowEmpty": "Sin movimientos en este periodo",
+      "byCategory": "Gastos por categoría",
+      "income": "Ingresos",
+      "expense": "Gastos",
+      "noCategory": "Sin categoría",
+      "other": "Otras"
+    },
+    "alerts": {
+      "overspend": "En este periodo gastas más de lo que ingresas.",
+      "overdueDebts": "Tienes {count, plural, =1 {# deuda vencida} other {# deudas vencidas}}.",
+      "dueRecurring": "Tienes {count, plural, =1 {# gasto fijo por registrar} other {# gastos fijos por registrar}}."
+    }
+  },
+  "settings": {
+    "appearance": {
+      "title": "Apariencia",
+      "description": "Elige cómo se ve FinWise en este dispositivo."
+    },
+    "theme": {
+      "label": "Tema",
+      "system": "Sistema",
+      "light": "Claro",
+      "dark": "Oscuro"
+    },
+    "language": {
+      "label": "Idioma",
+      "title": "Idioma",
+      "description": "El idioma en el que ves la aplicación."
+    }
+  },
+  "accounts": {
+    "new": "Nueva cuenta",
+    "edit": "Editar cuenta",
+    "empty": {
+      "title": "Aún no tienes cuentas",
+      "description": "Crea tu primera cuenta —efectivo, banco o billetera digital— para empezar a registrar movimientos."
+    },
+    "fields": {
+      "name": "Nombre",
+      "type": "Tipo",
+      "currency": "Moneda",
+      "bank": "Banco"
+    },
+    "types": {
+      "cash": "Efectivo",
+      "bank": "Banco",
+      "digital": "Digital"
+    },
+    "namePlaceholder": "Ej. Banesco, Efectivo, Zinli",
+    "noBank": "Sin banco",
+    "available": "Disponible",
+    "reserved": "reservado",
+    "archived": "Archivada",
+    "showArchived": "Mostrar archivadas",
+    "actions": {
+      "edit": "Editar",
+      "archive": "Archivar",
+      "restore": "Restaurar"
+    },
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "errors": {
+      "required": "Este campo es obligatorio.",
+      "tooLong": "Máximo 60 caracteres.",
+      "generic": "No se pudo guardar. Intenta de nuevo.",
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
+    }
+  },
+  "categories": {
+    "new": "Nueva categoría",
+    "edit": "Editar categoría",
+    "empty": {
+      "title": "Aún no tienes categorías",
+      "description": "Aún no hay categorías de este tipo."
+    },
+    "fields": {
+      "name": "Nombre",
+      "kind": "Tipo"
+    },
+    "kinds": {
+      "income": "Ingreso",
+      "expense": "Gasto"
+    },
+    "groups": {
+      "income": "Ingresos",
+      "expense": "Gastos"
+    },
+    "fixedTab": "Fijos",
+    "system": "Predeterminada",
+    "actions": {
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "deleteConfirm": "¿Eliminar esta categoría? Los movimientos asociados quedarán sin categoría.",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "errors": {
+      "required": "Este campo es obligatorio.",
+      "tooLong": "Máximo 40 caracteres.",
+      "generic": "No se pudo guardar. Intenta de nuevo.",
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
+    }
+  },
+  "transactions": {
+    "new": "Registrar movimiento",
+    "edit": "Editar movimiento",
+    "empty": {
+      "title": "Aún no hay movimientos",
+      "description": "Registra tu primer ingreso o gasto para empezar a ver a dónde va tu dinero."
+    },
+    "needAccount": {
+      "title": "Primero crea una cuenta",
+      "description": "Necesitas al menos una cuenta para registrar movimientos.",
+      "action": "Ir a Cuentas"
+    },
+    "types": {
+      "income": "Ingreso",
+      "expense": "Gasto",
+      "transfer": "Transferencia"
+    },
+    "filters": {
+      "all": "Todos",
+      "income": "Ingresos",
+      "expense": "Gastos",
+      "transfer": "Transferencias",
+      "recurring": "Recurrentes"
+    },
+    "emptyTab": "No hay movimientos de este tipo.",
+    "fields": {
+      "type": "Tipo",
+      "account": "Cuenta",
+      "from": "Origen",
+      "to": "Destino",
+      "category": "Categoría",
+      "product": "Producto",
+      "description": "Descripción",
+      "date": "Fecha",
+      "amount": "Monto"
+    },
+    "pickProduct": "Elegir un producto…",
+    "productHint": "Autocompleta la descripción con un producto de esta categoría.",
+    "noCategory": "Sin categoría",
+    "needSecondAccount": "Necesitas otra cuenta de la misma moneda para transferir.",
+    "descriptionPlaceholder": "Ej. Mercado, Sueldo, Uber",
+    "transferPlaceholder": "Ej. Traspaso a ahorros",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "actions": {
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "deleteConfirm": "¿Eliminar este movimiento? Esta acción no se puede deshacer.",
+    "errors": {
+      "required": "Este campo es obligatorio.",
+      "tooLong": "Máximo 120 caracteres.",
+      "amountRequired": "Ingresa un monto mayor que cero.",
+      "noRate": "No hay tasa del día para convertir. Actualiza las tasas e intenta de nuevo.",
+      "sameAccount": "El origen y el destino deben ser distintos.",
+      "currencyMismatch": "Solo puedes transferir entre cuentas de la misma moneda.",
+      "generic": "No se pudo guardar. Intenta de nuevo.",
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
+      "dayRange": "El día debe estar entre 1 y 31."
+    },
+    "fixed": {
+      "label": "Es un gasto fijo (se repite cada mes)",
+      "day": "Día del mes",
+      "dayHint": "Del 1 al 31.",
+      "dayCol": "Día",
+      "dayValue": "Día {day}",
+      "new": "Nuevo gasto fijo",
+      "edit": "Editar gasto fijo",
+      "post": "Registrar ahora",
+      "postConfirm": "¿Registrar «{description}» como gasto de este mes?",
+      "empty": {
+        "title": "Aún no hay gastos fijos",
+        "description": "Marca «gasto fijo» al registrar un gasto para crear una plantilla que se repite cada mes."
+      },
+      "statusCol": "Estado"
+    },
+    "dateFilter": {
+      "from": "Desde",
+      "to": "Hasta",
+      "clear": "Limpiar"
+    }
+  },
+  "debts": {
+    "new": "Nueva deuda",
+    "edit": "Editar deuda",
+    "groups": {
+      "i_owe": "Debo",
+      "owed_to_me": "Me deben"
+    },
+    "empty": {
+      "title": "Sin deudas por aquí",
+      "description": "Registra lo que debes o lo que te deben para llevarles el control."
+    },
+    "fields": {
+      "direction": "Tipo",
+      "counterparty": "Con quién",
+      "principal": "Monto",
+      "currency": "Moneda",
+      "dueDate": "Vence",
+      "description": "Descripción"
+    },
+    "counterpartyPlaceholder": "Ej. Pedro, Banco, Tienda",
+    "descriptionPlaceholder": "Opcional",
+    "remaining": "Restante",
+    "total": "Total",
+    "settled": "Saldada",
+    "due": "Vence",
+    "overdue": "vencida",
+    "payments": {
+      "title": "Abonos",
+      "amount": "Monto",
+      "date": "Fecha",
+      "note": "Nota",
+      "notePlaceholder": "Opcional",
+      "add": "Agregar abono"
+    },
+    "actions": {
+      "addPayment": "Abonar",
+      "payments": "Abonos",
+      "settle": "Marcar saldada",
+      "reopen": "Reabrir",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "deleteConfirm": "¿Eliminar esta deuda y todos sus abonos?",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "errors": {
+      "required": "Este campo es obligatorio.",
+      "tooLong": "El texto es demasiado largo.",
+      "amountRequired": "Ingresa un monto mayor que cero.",
+      "generic": "No se pudo guardar. Intenta de nuevo.",
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
+    }
+  },
+  "goals": {
+    "new": "Nueva meta",
+    "edit": "Editar meta",
+    "empty": {
+      "title": "Aún no tienes metas",
+      "description": "Crea una meta y reserva dinero dentro de una cuenta para alcanzarla sin gastarlo por error."
+    },
+    "needAccountTitle": "Primero crea una cuenta",
+    "needAccount": "Necesitas al menos una cuenta para reservar dinero en una meta.",
+    "needAccountAction": "Ir a Cuentas",
+    "fields": {
+      "name": "Nombre",
+      "account": "Cuenta",
+      "target": "Objetivo",
+      "targetDate": "Fecha límite"
+    },
+    "namePlaceholder": "Ej. Viaje, Fondo de emergencia",
+    "saved": "Ahorrado",
+    "of": "de",
+    "by": "para",
+    "remaining": "Faltan",
+    "achieved": "Cumplida",
+    "contributions": {
+      "title": "Aportes",
+      "kind": "Tipo",
+      "add": "Aportar",
+      "withdraw": "Retirar",
+      "amount": "Monto",
+      "date": "Fecha",
+      "note": "Nota",
+      "notePlaceholder": "Opcional",
+      "submit": "Registrar"
+    },
+    "actions": {
+      "contribute": "Aportar",
+      "markAchieved": "Marcar cumplida",
+      "reopen": "Reabrir",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "deleteConfirm": "¿Eliminar esta meta y sus aportes? El dinero reservado se liberará.",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "errors": {
+      "required": "Este campo es obligatorio.",
+      "tooLong": "El texto es demasiado largo.",
+      "amountRequired": "Ingresa un monto mayor que cero.",
+      "exceedsSaved": "No puedes retirar más de lo que has ahorrado.",
+      "generic": "No se pudo guardar. Intenta de nuevo.",
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
+    }
+  },
+  "admin": {
+    "title": "Administración",
+    "back": "Volver",
+    "link": "Panel de administración",
+    "linkHint": "Gestiona usuarios, roles y contraseñas.",
+    "user": "Usuario",
+    "created": "Registrado",
+    "actions": "Acciones",
+    "roleAdmin": "Admin",
+    "resetPassword": "Restablecer contraseña",
+    "makeAdmin": "Hacer admin",
+    "revokeAdmin": "Quitar admin",
+    "deleteUser": "Eliminar usuario",
+    "deleteConfirm": "¿Eliminar a {email}? Se borrarán todos sus datos.",
+    "newPassword": "Nueva contraseña",
+    "resetHint": "Escribe la nueva contraseña de {email}. Se la comunicas tú directamente.",
+    "resetDone": "Contraseña actualizada.",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "errors": {
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+      "generic": "No se pudo completar la acción. Intenta de nuevo."
+    }
+  },
+  "products": {
+    "newProduct": "Nuevo producto",
+    "editProduct": "Editar producto",
+    "empty": {
+      "title": "Aún no tienes productos",
+      "description": "Crea tu catálogo personal para armar carritos más rápido y guardar el historial de precios."
+    },
+    "fields": {
+      "name": "Nombre",
+      "unit": "Unidad",
+      "category": "Categoría",
+      "staple": "Es de los que siempre compro",
+      "typicalDays": "Cada cuántos días"
+    },
+    "units": {
+      "unit": "Unidad",
+      "kg": "Kg",
+      "g": "g",
+      "liter": "Litro",
+      "ml": "ml",
+      "pack": "Paquete"
+    },
+    "productPlaceholder": "Ej. Arroz, Leche, Café",
+    "noCategory": "Sin categoría",
+    "staple": "Básico",
+    "typicalDaysHint": "Opcional. Para saber cuándo reponerlo.",
+    "everyDays": "cada {count, plural, =1 {# día} other {# días}}",
+    "backToProducts": "Productos",
+    "priceHistory": "Historial de precios",
+    "currency": "Moneda",
+    "noPriceHistory": "Aún no hay precios. Cierra una compra con este producto para empezar el historial.",
+    "latestPrice": "Último precio",
+    "sinceFirst": "Desde el inicio",
+    "vesHint": "El precio en bolívares sube aunque el precio real en dólares se mantenga: es la tasa moviéndose.",
+    "stores": "Tiendas",
+    "tabs": {
+      "products": "Productos",
+      "stores": "Tiendas"
+    },
+    "newStore": "Nueva tienda",
+    "editStore": "Editar tienda",
+    "storePlaceholder": "Ej. Excelsior Gama, Farmatodo",
+    "storesEmpty": {
+      "title": "Aún no tienes tiendas",
+      "description": "Agrega los supermercados donde compras para asignarlos a tus carritos."
+    },
+    "addStore": "Agregar tienda",
+    "deleteStore": "Eliminar tienda",
+    "deleteStoreConfirm": "¿Eliminar esta tienda? No afecta compras ya registradas.",
+    "deleteProductConfirm": "¿Eliminar este producto? No afecta compras ya cerradas.",
+    "actions": {
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "errors": {
+      "required": "Este campo es obligatorio.",
+      "tooLong": "El texto es demasiado largo.",
+      "generic": "No se pudo guardar. Intenta de nuevo.",
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
+    }
+  },
+  "shopping": {
+    "newList": "Nuevo carrito",
+    "editList": "Editar carrito",
+    "empty": {
+      "title": "Aún no tienes carritos",
+      "description": "Crea un carrito con presupuesto, arma tu lista y ciérralo como un gasto al terminar."
+    },
+    "fields": {
+      "name": "Nombre",
+      "store": "Tienda",
+      "budget": "Presupuesto",
+      "product": "Producto",
+      "itemName": "Nombre",
+      "quantity": "Cantidad",
+      "account": "Cuenta",
+      "category": "Categoría",
+      "date": "Fecha"
+    },
+    "listPlaceholder": "Ej. Mercado del mes",
+    "itemNamePlaceholder": "Ej. Servilletas",
+    "noStore": "Sin tienda",
+    "noCategory": "Sin categoría",
+    "adHoc": "Otro (escribir)",
+    "status": {
+      "open": "Abierto",
+      "completed": "Completada"
+    },
+    "itemsSummary": "{count, plural, =0 {Sin ítems} =1 {# ítem} other {# ítems}} · {checked} comprados",
+    "open": "Abrir",
+    "deleteList": "Eliminar carrito",
+    "deleteConfirm": "¿Eliminar este carrito y sus ítems?",
+    "backToLists": "Carritos",
+    "addItem": "Agregar ítem",
+    "addMissing": "Agregar lo que hace falta",
+    "add": "Agregar",
+    "overBudget": "Te pasas del presupuesto por {amount}.",
+    "completedNote": "Compra cerrada y registrada como movimiento.",
+    "viewTransaction": "Ver movimiento",
+    "noItems": "Agrega ítems a tu carrito.",
+    "actualPrice": "Precio",
+    "deleteItem": "Eliminar ítem",
+    "closePurchase": "Cerrar compra",
+    "closeSummary": "Se registrará un gasto de {amount} y se guardarán los precios.",
+    "confirmClose": "Registrar compra",
+    "needAccount": "Necesitas una cuenta para registrar la compra.",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "errors": {
+      "required": "Este campo es obligatorio.",
+      "tooLong": "El texto es demasiado largo.",
+      "quantityRequired": "Ingresa una cantidad mayor que cero.",
+      "emptyCart": "El carrito no tiene precios para registrar.",
+      "noRate": "No hay tasa del día para convertir. Actualiza las tasas e intenta de nuevo.",
+      "generic": "No se pudo completar. Intenta de nuevo.",
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
+    },
+    "autoCategoryHint": "La categoría se asigna automáticamente según los productos del carrito."
+  },
+  "pagination": {
+    "label": "Paginación",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageOf": "Página {page} de {total}"
   }
 }

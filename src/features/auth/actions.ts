@@ -1,8 +1,34 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { PREF_COOKIE_OPTIONS } from '@/lib/cookies';
+import { LOCALE_COOKIE } from '@/i18n/request';
+import { THEME_COOKIE } from '@/lib/theme';
 import { credentialsSchema, type AuthState } from './schemas';
+
+/**
+ * Al iniciar sesión, sincroniza las preferencias guardadas en el perfil hacia
+ * las cookies, para que idioma y tema viajen con el usuario entre dispositivos.
+ */
+async function hydratePrefsFromProfile(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data } = await supabase
+    .from('profiles')
+    .select('locale, theme')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (!data) return;
+
+  const store = await cookies();
+  if (data.locale) store.set(LOCALE_COOKIE, data.locale, PREF_COOKIE_OPTIONS);
+  if (data.theme) store.set(THEME_COOKIE, data.theme, PREF_COOKIE_OPTIONS);
+}
 
 function fieldErrorsFrom(error: import('zod').ZodError): AuthState {
   const fieldErrors: { email?: string; password?: string } = {};
@@ -38,6 +64,7 @@ export async function authenticate(_prev: AuthState, formData: FormData): Promis
   } else {
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     if (error) return { error: 'invalidCredentials' };
+    await hydratePrefsFromProfile(supabase);
   }
 
   redirect('/');

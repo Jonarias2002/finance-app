@@ -11,3 +11,5 @@ export { EmptyState } from './empty-state';
 export { Field, Input, Select } from './field';
 export { AmountInput } from './amount-input';
 export { Table, Th, Tr, Td } from './table';
+export { Tabs } from './tabs';
+export { Pagination, usePagination } from './pagination';

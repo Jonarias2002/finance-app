@@ -6,10 +6,12 @@ import { useTranslations } from 'next-intl';
 import {
   LayoutDashboard,
   ArrowLeftRight,
-  Repeat,
   HandCoins,
   Target,
   Wallet,
+  Tags,
+  ShoppingCart,
+  Package,
   Settings,
   LogOut,
 } from 'lucide-react';
@@ -21,12 +23,17 @@ import { logout } from '@/features/auth/actions';
 const NAV = [
   { href: '/', key: 'home', icon: LayoutDashboard, mobile: true },
   { href: '/transactions', key: 'transactions', icon: ArrowLeftRight, mobile: true },
-  { href: '/fixed-expenses', key: 'fixedExpenses', icon: Repeat, mobile: false },
   { href: '/debts', key: 'debts', icon: HandCoins, mobile: true },
   { href: '/goals', key: 'goals', icon: Target, mobile: true },
   { href: '/accounts', key: 'accounts', icon: Wallet, mobile: false },
+  { href: '/categories', key: 'categories', icon: Tags, mobile: false },
+  { href: '/products', key: 'products', icon: Package, mobile: false },
   { href: '/settings', key: 'settings', icon: Settings, mobile: true },
 ] as const;
+
+/** Compras no va en la navegación: vive en un botón flotante (FAB). Aquí solo
+ *  para resolver el encabezado de la sección cuando la ruta es /shopping. */
+const SHOPPING = { href: '/shopping', key: 'shopping' } as const;
 
 type AppShellProps = {
   /** Si se omite, el título es la etiqueta de la sección activa. */
@@ -40,7 +47,7 @@ export function AppShell({ title, cycleLabel, rate, children }: AppShellProps) {
   const pathname = usePathname();
   const t = useTranslations('nav');
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
-  const activeKey = NAV.find((n) => isActive(n.href))?.key ?? 'home';
+  const activeKey = [...NAV, SHOPPING].find((n) => isActive(n.href))?.key ?? 'home';
   const heading = title ?? t(activeKey);
 
   return (
@@ -120,6 +127,20 @@ export function AppShell({ title, cycleLabel, rate, children }: AppShellProps) {
           </Link>
         ))}
       </nav>
+
+      {/* Botón flotante de Compras — siempre en la esquina inferior derecha.
+          En móvil sube por encima de la barra inferior; en escritorio va al borde. */}
+      <Link
+        href={SHOPPING.href}
+        aria-label={t(SHOPPING.key)}
+        aria-current={isActive(SHOPPING.href) ? 'page' : undefined}
+        className={cn(
+          'bg-ink text-canvas fixed right-4 bottom-20 z-50 flex size-14 items-center justify-center rounded-full shadow-lg transition-opacity hover:opacity-90 lg:right-6 lg:bottom-6',
+          isActive(SHOPPING.href) && 'ring-ink ring-offset-canvas ring-2 ring-offset-2',
+        )}
+      >
+        <ShoppingCart className="size-6" aria-hidden />
+      </Link>
     </div>
   );
 }

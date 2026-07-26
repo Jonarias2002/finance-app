@@ -2,7 +2,8 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 /** Routes reachable without a session. Everything else requires auth. */
-const PUBLIC_ROUTES = ['/login'];
+// `/api/cron` se autentica con CRON_SECRET, no con sesión: no debe redirigir a /login.
+const PUBLIC_ROUTES = ['/login', '/api/cron'];
 
 /**
  * Refreshes the Supabase session on every request and guards routes.

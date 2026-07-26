@@ -14,7 +14,6 @@ create type public.category_kind   as enum ('income', 'expense');
 create type public.txn_type        as enum ('income', 'expense', 'transfer');
 create type public.cycle_type      as enum ('calendar', 'fixed_day', 'rolling_30');
 create type public.app_role        as enum ('user', 'admin');
-create type public.recurrence_unit as enum ('day', 'week', 'month', 'year');
 create type public.debt_direction  as enum ('i_owe', 'owed_to_me');
 create type public.rate_source     as enum ('official', 'parallel');
 
@@ -206,14 +205,29 @@ create table public.transactions (
   description    text not null check (length(trim(description)) > 0),
   occurred_at    timestamptz not null default now(),
   created_at     timestamptz not null default now(),
+  -- Gasto fijo: una fila con is_template=true es una PLANTILLA que se repite cada
+  -- mes en fixed_day. Las plantillas NUNCA cuentan como dinero movido: se excluyen
+  -- del saldo y de toda agregación. is_fixed marca la fila como parte del sistema
+  -- de gasto fijo; template_id apunta a la plantilla que originó un movimiento real
+  -- (vía "registrar ahora"), y queda en null si la plantilla se elimina.
+  is_fixed       boolean not null default false,
+  fixed_day      smallint check (fixed_day between 1 and 31),
+  is_template    boolean not null default false,
+  template_id    uuid references public.transactions (id) on delete set null,
   check (type <> 'transfer' or transfer_account_id is not null),
-  check (transfer_account_id is null or transfer_account_id <> account_id)
+  check (transfer_account_id is null or transfer_account_id <> account_id),
+  -- Un gasto fijo debe traer su día del mes; una plantilla es siempre un gasto fijo.
+  check (is_fixed = false or fixed_day is not null),
+  check (is_template = false or is_fixed = true)
 );
 
 create index transactions_user_date_idx
   on public.transactions (user_id, occurred_at desc);
 create index transactions_account_idx
   on public.transactions (account_id);
+-- Listar rápido las plantillas de gasto fijo de un usuario.
+create index transactions_template_idx
+  on public.transactions (user_id) where is_template;
 
 alter table public.transactions enable row level security;
 
@@ -222,33 +236,9 @@ create policy "transactions: owner all"
   using (user_id = (select auth.uid()))
   with check (user_id = (select auth.uid()));
 
--- 9. recurring_transactions — templates for fixed expenses ------------------
-create table public.recurring_transactions (
-  id                uuid primary key default gen_random_uuid(),
-  user_id           uuid not null references auth.users (id) on delete cascade,
-  account_id        uuid not null references public.accounts (id) on delete cascade,
-  category_id       uuid references public.categories (id) on delete set null,
-  type              public.txn_type not null default 'expense',
-  amount            numeric(14,2) not null check (amount > 0),
-  currency          char(3) not null default 'USD',
-  description       text not null check (length(trim(description)) > 0),
-  interval_unit     public.recurrence_unit not null default 'month',
-  interval_count    smallint not null default 1 check (interval_count > 0),
-  next_run          date not null,
-  day_of_month      smallint check (day_of_month between 1 and 31),
-  is_active         boolean not null default true,
-  created_at        timestamptz not null default now()
-);
-
-create index recurring_user_idx on public.recurring_transactions (user_id)
-  where is_active;
-
-alter table public.recurring_transactions enable row level security;
-
-create policy "recurring: owner all"
-  on public.recurring_transactions for all to authenticated
-  using (user_id = (select auth.uid()))
-  with check (user_id = (select auth.uid()));
+-- 9. Los "gastos fijos" NO son una tabla aparte: son plantillas dentro de
+--    transactions (is_template=true). Ver las columnas is_fixed / fixed_day /
+--    is_template / template_id en la sección 8.
 
 -- 10. debts + debt_payments -------------------------------------------------
 create table public.debts (
@@ -446,9 +436,11 @@ with txn as (
         select sum(t2.amount)
         from public.transactions t2
         where t2.transfer_account_id = a.id and t2.type = 'transfer'
+          and not t2.is_template
       ), 0) as total_balance                       -- money arriving via transfer
   from public.accounts a
-  left join public.transactions t on t.account_id = a.id
+  -- Las plantillas de gasto fijo nunca cuentan como dinero movido.
+  left join public.transactions t on t.account_id = a.id and not t.is_template
   group by a.id
 ),
 reserved as (

@@ -9,7 +9,10 @@
     "fixedExpenses": "Fixed expenses",
     "debts": "Debts",
     "goals": "Goals",
+    "shopping": "Shopping",
     "accounts": "Accounts",
+    "categories": "Categories",
+    "products": "Products",
     "settings": "Settings",
     "newTransaction": "Add transaction",
     "logout": "Sign out"
@@ -61,6 +64,461 @@
     "greeting": "Hi, {name}",
     "emptyTitle": "No transactions yet",
     "emptyDescription": "Add your first expense or income to start seeing where your money goes.",
-    "emptyAction": "Add transaction"
+    "emptyAction": "Add transaction",
+    "ranges": {
+      "label": "Period",
+      "week": "Week",
+      "month": "Month",
+      "3m": "3 months",
+      "6m": "6 months"
+    },
+    "kpi": {
+      "available": "Available",
+      "income": "Income",
+      "expense": "Expenses",
+      "net": "Net"
+    },
+    "charts": {
+      "flow": "Income and expenses",
+      "flowEmpty": "No transactions in this period",
+      "byCategory": "Expenses by category",
+      "income": "Income",
+      "expense": "Expenses",
+      "noCategory": "Uncategorized",
+      "other": "Other"
+    },
+    "alerts": {
+      "overspend": "You're spending more than you earn this period.",
+      "overdueDebts": "You have {count, plural, =1 {# overdue debt} other {# overdue debts}}.",
+      "dueRecurring": "You have {count, plural, =1 {# fixed expense to post} other {# fixed expenses to post}}."
+    }
+  },
+  "settings": {
+    "appearance": {
+      "title": "Appearance",
+      "description": "Choose how FinWise looks on this device."
+    },
+    "theme": {
+      "label": "Theme",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "language": {
+      "label": "Language",
+      "title": "Language",
+      "description": "The language you see the app in."
+    }
+  },
+  "accounts": {
+    "new": "New account",
+    "edit": "Edit account",
+    "empty": {
+      "title": "No accounts yet",
+      "description": "Create your first account —cash, bank or digital wallet— to start recording transactions."
+    },
+    "fields": {
+      "name": "Name",
+      "type": "Type",
+      "currency": "Currency",
+      "bank": "Bank"
+    },
+    "types": {
+      "cash": "Cash",
+      "bank": "Bank",
+      "digital": "Digital"
+    },
+    "namePlaceholder": "e.g. Banesco, Cash, Zinli",
+    "noBank": "No bank",
+    "available": "Available",
+    "reserved": "reserved",
+    "archived": "Archived",
+    "showArchived": "Show archived",
+    "actions": {
+      "edit": "Edit",
+      "archive": "Archive",
+      "restore": "Restore"
+    },
+    "save": "Save",
+    "cancel": "Cancel",
+    "errors": {
+      "required": "This field is required.",
+      "tooLong": "60 characters max.",
+      "generic": "Could not save. Try again.",
+      "unauthenticated": "Your session expired. Sign in again."
+    }
+  },
+  "categories": {
+    "new": "New category",
+    "edit": "Edit category",
+    "empty": {
+      "title": "No categories yet",
+      "description": "No categories of this kind yet."
+    },
+    "fields": {
+      "name": "Name",
+      "kind": "Kind"
+    },
+    "kinds": {
+      "income": "Income",
+      "expense": "Expense"
+    },
+    "groups": {
+      "income": "Income",
+      "expense": "Expenses"
+    },
+    "fixedTab": "Fixed",
+    "system": "Default",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "deleteConfirm": "Delete this category? Linked transactions will be left uncategorized.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errors": {
+      "required": "This field is required.",
+      "tooLong": "40 characters max.",
+      "generic": "Could not save. Try again.",
+      "unauthenticated": "Your session expired. Sign in again."
+    }
+  },
+  "transactions": {
+    "new": "Add transaction",
+    "edit": "Edit transaction",
+    "empty": {
+      "title": "No transactions yet",
+      "description": "Add your first income or expense to start seeing where your money goes."
+    },
+    "needAccount": {
+      "title": "Create an account first",
+      "description": "You need at least one account to record transactions.",
+      "action": "Go to Accounts"
+    },
+    "types": {
+      "income": "Income",
+      "expense": "Expense",
+      "transfer": "Transfer"
+    },
+    "filters": {
+      "all": "All",
+      "income": "Income",
+      "expense": "Expenses",
+      "transfer": "Transfers",
+      "recurring": "Recurring"
+    },
+    "emptyTab": "No transactions of this type.",
+    "fields": {
+      "type": "Type",
+      "account": "Account",
+      "from": "From",
+      "to": "To",
+      "category": "Category",
+      "product": "Product",
+      "description": "Description",
+      "date": "Date",
+      "amount": "Amount"
+    },
+    "pickProduct": "Pick a product…",
+    "productHint": "Autofills the description with a product from this category.",
+    "noCategory": "No category",
+    "needSecondAccount": "You need another account in the same currency to transfer.",
+    "descriptionPlaceholder": "e.g. Groceries, Salary, Uber",
+    "transferPlaceholder": "e.g. Move to savings",
+    "save": "Save",
+    "cancel": "Cancel",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "deleteConfirm": "Delete this transaction? This cannot be undone.",
+    "errors": {
+      "required": "This field is required.",
+      "tooLong": "120 characters max.",
+      "amountRequired": "Enter an amount greater than zero.",
+      "noRate": "No rate available to convert. Refresh rates and try again.",
+      "sameAccount": "Source and destination must be different.",
+      "currencyMismatch": "You can only transfer between accounts of the same currency.",
+      "generic": "Could not save. Try again.",
+      "unauthenticated": "Your session expired. Sign in again.",
+      "dayRange": "Day must be between 1 and 31."
+    },
+    "fixed": {
+      "label": "This is a fixed expense (repeats monthly)",
+      "day": "Day of month",
+      "dayHint": "1 to 31.",
+      "dayCol": "Day",
+      "dayValue": "Day {day}",
+      "new": "New fixed expense",
+      "edit": "Edit fixed expense",
+      "post": "Log now",
+      "postConfirm": "Log “{description}” as this month’s expense?",
+      "empty": {
+        "title": "No fixed expenses yet",
+        "description": "Check “fixed expense” when logging an expense to create a template that repeats every month."
+      },
+      "statusCol": "Status"
+    },
+    "dateFilter": {
+      "from": "From",
+      "to": "To",
+      "clear": "Clear"
+    }
+  },
+  "debts": {
+    "new": "New debt",
+    "edit": "Edit debt",
+    "groups": {
+      "i_owe": "I owe",
+      "owed_to_me": "Owed to me"
+    },
+    "empty": {
+      "title": "No debts here",
+      "description": "Record what you owe or what you're owed to keep track of it."
+    },
+    "fields": {
+      "direction": "Type",
+      "counterparty": "With whom",
+      "principal": "Amount",
+      "currency": "Currency",
+      "dueDate": "Due",
+      "description": "Description"
+    },
+    "counterpartyPlaceholder": "e.g. Pedro, Bank, Store",
+    "descriptionPlaceholder": "Optional",
+    "remaining": "Remaining",
+    "total": "Total",
+    "settled": "Settled",
+    "due": "Due",
+    "overdue": "overdue",
+    "payments": {
+      "title": "Payments",
+      "amount": "Amount",
+      "date": "Date",
+      "note": "Note",
+      "notePlaceholder": "Optional",
+      "add": "Add payment"
+    },
+    "actions": {
+      "addPayment": "Pay",
+      "payments": "Payments",
+      "settle": "Mark settled",
+      "reopen": "Reopen",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "deleteConfirm": "Delete this debt and all its payments?",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errors": {
+      "required": "This field is required.",
+      "tooLong": "Text is too long.",
+      "amountRequired": "Enter an amount greater than zero.",
+      "generic": "Could not save. Try again.",
+      "unauthenticated": "Your session expired. Sign in again."
+    }
+  },
+  "goals": {
+    "new": "New goal",
+    "edit": "Edit goal",
+    "empty": {
+      "title": "No goals yet",
+      "description": "Create a goal and reserve money inside an account so you reach it without spending it by mistake."
+    },
+    "needAccountTitle": "Create an account first",
+    "needAccount": "You need at least one account to reserve money in a goal.",
+    "needAccountAction": "Go to Accounts",
+    "fields": {
+      "name": "Name",
+      "account": "Account",
+      "target": "Target",
+      "targetDate": "Target date"
+    },
+    "namePlaceholder": "e.g. Trip, Emergency fund",
+    "saved": "Saved",
+    "of": "of",
+    "by": "by",
+    "remaining": "Remaining",
+    "achieved": "Achieved",
+    "contributions": {
+      "title": "Contributions",
+      "kind": "Type",
+      "add": "Add",
+      "withdraw": "Withdraw",
+      "amount": "Amount",
+      "date": "Date",
+      "note": "Note",
+      "notePlaceholder": "Optional",
+      "submit": "Record"
+    },
+    "actions": {
+      "contribute": "Add",
+      "markAchieved": "Mark achieved",
+      "reopen": "Reopen",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "deleteConfirm": "Delete this goal and its contributions? The reserved money will be released.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errors": {
+      "required": "This field is required.",
+      "tooLong": "Text is too long.",
+      "amountRequired": "Enter an amount greater than zero.",
+      "exceedsSaved": "You can't withdraw more than you've saved.",
+      "generic": "Could not save. Try again.",
+      "unauthenticated": "Your session expired. Sign in again."
+    }
+  },
+  "admin": {
+    "title": "Administration",
+    "back": "Back",
+    "link": "Admin panel",
+    "linkHint": "Manage users, roles and passwords.",
+    "user": "User",
+    "created": "Joined",
+    "actions": "Actions",
+    "roleAdmin": "Admin",
+    "resetPassword": "Reset password",
+    "makeAdmin": "Make admin",
+    "revokeAdmin": "Revoke admin",
+    "deleteUser": "Delete user",
+    "deleteConfirm": "Delete {email}? All their data will be removed.",
+    "newPassword": "New password",
+    "resetHint": "Type the new password for {email}. You share it with them directly.",
+    "resetDone": "Password updated.",
+    "close": "Close",
+    "save": "Save",
+    "errors": {
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "generic": "Could not complete the action. Try again."
+    }
+  },
+  "products": {
+    "newProduct": "New product",
+    "editProduct": "Edit product",
+    "empty": {
+      "title": "No products yet",
+      "description": "Build your personal catalogue to assemble carts faster and keep price history."
+    },
+    "fields": {
+      "name": "Name",
+      "unit": "Unit",
+      "category": "Category",
+      "staple": "I always buy this",
+      "typicalDays": "Every how many days"
+    },
+    "units": {
+      "unit": "Unit",
+      "kg": "Kg",
+      "g": "g",
+      "liter": "Liter",
+      "ml": "ml",
+      "pack": "Pack"
+    },
+    "productPlaceholder": "e.g. Rice, Milk, Coffee",
+    "noCategory": "No category",
+    "staple": "Staple",
+    "typicalDaysHint": "Optional. To know when to restock.",
+    "everyDays": "every {count, plural, =1 {# day} other {# days}}",
+    "backToProducts": "Products",
+    "priceHistory": "Price history",
+    "currency": "Currency",
+    "noPriceHistory": "No prices yet. Close a purchase with this product to start the history.",
+    "latestPrice": "Latest price",
+    "sinceFirst": "Since first",
+    "vesHint": "The bolívar price rises even when the real dollar price holds steady: that's the rate moving.",
+    "stores": "Stores",
+    "tabs": {
+      "products": "Products",
+      "stores": "Stores"
+    },
+    "newStore": "New store",
+    "editStore": "Edit store",
+    "storePlaceholder": "e.g. Excelsior Gama, Farmatodo",
+    "storesEmpty": {
+      "title": "No stores yet",
+      "description": "Add the supermarkets where you shop to assign them to your carts."
+    },
+    "addStore": "Add store",
+    "deleteStore": "Delete store",
+    "deleteStoreConfirm": "Delete this store? It won't affect purchases already recorded.",
+    "deleteProductConfirm": "Delete this product? It won't affect closed purchases.",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "save": "Save",
+    "cancel": "Cancel",
+    "errors": {
+      "required": "This field is required.",
+      "tooLong": "Text is too long.",
+      "generic": "Could not save. Try again.",
+      "unauthenticated": "Your session expired. Sign in again."
+    }
+  },
+  "shopping": {
+    "newList": "New cart",
+    "editList": "Edit cart",
+    "empty": {
+      "title": "No carts yet",
+      "description": "Create a cart with a budget, build your list, and close it as an expense when done."
+    },
+    "fields": {
+      "name": "Name",
+      "store": "Store",
+      "budget": "Budget",
+      "product": "Product",
+      "itemName": "Name",
+      "quantity": "Quantity",
+      "account": "Account",
+      "category": "Category",
+      "date": "Date"
+    },
+    "listPlaceholder": "e.g. Monthly groceries",
+    "itemNamePlaceholder": "e.g. Napkins",
+    "noStore": "No store",
+    "noCategory": "No category",
+    "adHoc": "Other (type)",
+    "status": {
+      "open": "Open",
+      "completed": "Completed"
+    },
+    "itemsSummary": "{count, plural, =0 {No items} =1 {# item} other {# items}} · {checked} bought",
+    "open": "Open",
+    "deleteList": "Delete cart",
+    "deleteConfirm": "Delete this cart and its items?",
+    "backToLists": "Carts",
+    "addItem": "Add item",
+    "addMissing": "Add what's missing",
+    "add": "Add",
+    "overBudget": "You're over budget by {amount}.",
+    "completedNote": "Purchase closed and recorded as a transaction.",
+    "viewTransaction": "View transaction",
+    "noItems": "Add items to your cart.",
+    "actualPrice": "Price",
+    "deleteItem": "Delete item",
+    "closePurchase": "Close purchase",
+    "closeSummary": "An expense of {amount} will be recorded and prices saved.",
+    "confirmClose": "Record purchase",
+    "needAccount": "You need an account to record the purchase.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errors": {
+      "required": "This field is required.",
+      "tooLong": "Text is too long.",
+      "quantityRequired": "Enter a quantity greater than zero.",
+      "emptyCart": "The cart has no prices to record.",
+      "noRate": "No rate available to convert. Refresh rates and try again.",
+      "generic": "Could not complete. Try again.",
+      "unauthenticated": "Your session expired. Sign in again."
+    },
+    "autoCategoryHint": "The category is set automatically from the cart’s products."
+  },
+  "pagination": {
+    "label": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {total}"
   }
 }

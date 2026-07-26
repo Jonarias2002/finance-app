@@ -1,0 +1,10 @@
+# Config de pnpm (pnpm 11 mueve estos ajustes aquí, ya no en package.json).
+# No correr `pnpm install` antes de cada script: ese chequeo previo re-marcaba
+# los "ignored builds" y hacía fallar `pnpm dev`/`pnpm typecheck` con exit 1.
+verifyDepsBeforeRun: false
+# Dependencias con scripts de build nativos aprobados para ejecutarse.
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  sharp: true
+  unrs-resolver: true
