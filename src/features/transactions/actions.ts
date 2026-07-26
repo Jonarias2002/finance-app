@@ -4,10 +4,16 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
-import { getLatestRate } from '@/features/exchange-rates/get-latest-rate';
+import { getRateForDate } from '@/features/exchange-rates/get-latest-rate';
 import { transactionSchema, transferSchema, type ActionState } from './schemas';
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/** Tasa manual que llega del formulario (Bs por 1 USD); vacío o inválido -> null. */
+function manualRateFrom(formData: FormData): number | null {
+  const n = Number(formData.get('exchangeRate'));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
 
 function fieldErrorsFrom(error: z.ZodError): ActionState {
   const fieldErrors: Record<string, string> = {};
@@ -20,13 +26,26 @@ function fieldErrorsFrom(error: z.ZodError): ActionState {
   return { fieldErrors };
 }
 
-/** Tasa a usar: al editar se conserva la congelada; al crear, la última conocida. */
+/**
+ * Tasa a congelar en el movimiento (Bs por 1 USD). Prioridad:
+ * 1) tasa manual que envía el formulario; 2) tasa histórica de la fecha
+ * `occurredAt` (la del día o la más reciente anterior); 3) al editar, la tasa ya
+ * congelada. USD siempre es 1. Devuelve 'noRate' si no hay de dónde tomarla.
+ */
 async function rateFor(
   supabase: SupabaseClient,
   userId: string,
   id: string | null,
   currency: 'USD' | 'VES',
+  occurredAt: string,
+  manualRate: number | null,
 ): Promise<number | 'noRate'> {
+  if (currency !== 'VES') return 1;
+  if (manualRate) return manualRate;
+
+  const point = await getRateForDate(supabase, occurredAt);
+  if (point) return point.rate;
+
   if (id) {
     const { data } = await supabase
       .from('transactions')
@@ -34,17 +53,16 @@ async function rateFor(
       .eq('id', id)
       .eq('user_id', userId)
       .maybeSingle();
-    return data ? Number(data.exchange_rate) : 1;
+    if (data) return Number(data.exchange_rate);
   }
-  const latest = await getLatestRate(supabase);
-  if (currency === 'VES') return latest ? latest.rate : 'noRate';
-  return latest?.rate ?? 1;
+  return 'noRate';
 }
 
 /**
- * Crea o actualiza un movimiento. La moneda y el monto en USD se derivan en el
- * servidor a partir de la cuenta y de la tasa del día: el cliente no fija la tasa.
- * Al editar se conserva la tasa original congelada (ADR 12).
+ * Crea o actualiza un movimiento. La moneda la define la cuenta (integridad del
+ * saldo). La tasa sigue la fecha del movimiento por defecto, así un gasto de ayer
+ * registrado hoy se convierte con la tasa de ayer; el formulario puede además
+ * enviar una tasa manual. El monto en USD se deriva en el servidor.
  */
 export async function saveTransaction(
   _prev: ActionState,
@@ -62,7 +80,6 @@ export async function saveTransaction(
   }
 
   const rawCategory = formData.get('categoryId');
-  const rawFixedDay = formData.get('fixedDay');
   const parsed = transactionSchema.safeParse({
     type: formData.get('type'),
     accountId: formData.get('accountId'),
@@ -70,13 +87,10 @@ export async function saveTransaction(
     amount: Number(formData.get('amount')),
     description: formData.get('description'),
     occurredAt: formData.get('occurredAt'),
-    isFixed: formData.get('isFixed') === 'on',
-    fixedDay: rawFixedDay ? Number(rawFixedDay) : null,
   });
   if (!parsed.success) return fieldErrorsFrom(parsed.error);
 
-  const { type, accountId, categoryId, amount, description, occurredAt, isFixed, fixedDay } =
-    parsed.data;
+  const { type, accountId, categoryId, amount, description, occurredAt } = parsed.data;
 
   // La cuenta define la moneda del movimiento (integridad del saldo).
   const { data: account } = await supabase
@@ -88,7 +102,7 @@ export async function saveTransaction(
   if (!account) return { fieldErrors: { accountId: 'required' } };
   const currency = account.currency as 'USD' | 'VES';
 
-  const rate = await rateFor(supabase, user.id, id, currency);
+  const rate = await rateFor(supabase, user.id, id, currency, occurredAt, manualRateFrom(formData));
   if (rate === 'noRate') return { error: 'noRate' };
 
   const amountUsd = currency === 'VES' ? round2(amount / rate) : round2(amount);
@@ -104,10 +118,6 @@ export async function saveTransaction(
     amount_usd: amountUsd,
     description: description.trim(),
     occurred_at: `${occurredAt}T12:00:00-04:00`, // mediodía Caracas (ADR 13)
-    // Una sola casilla: marcada => plantilla de gasto fijo (fuera del saldo).
-    is_fixed: isFixed,
-    is_template: isFixed,
-    fixed_day: isFixed ? fixedDay : null,
   };
 
   if (id) {
@@ -162,7 +172,7 @@ async function saveTransfer(
   if (source.currency !== dest.currency) return { error: 'currencyMismatch' };
 
   const currency = source.currency as 'USD' | 'VES';
-  const rate = await rateFor(supabase, userId, id, currency);
+  const rate = await rateFor(supabase, userId, id, currency, occurredAt, manualRateFrom(formData));
   if (rate === 'noRate') return { error: 'noRate' };
   const amountUsd = currency === 'VES' ? round2(amount / rate) : round2(amount);
 
@@ -209,61 +219,4 @@ export async function deleteTransaction(id: string) {
   revalidatePath('/transactions');
   revalidatePath('/accounts');
   revalidatePath('/');
-}
-
-/**
- * "Registrar ahora": genera un movimiento real a partir de una plantilla de gasto
- * fijo. Copia sus datos, marca template_id y congela la tasa del día. Este sí baja
- * el saldo (is_template=false), mientras que la plantilla original queda intacta.
- */
-export async function postTemplate(templateId: string): Promise<ActionState> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'unauthenticated' };
-
-  const { data: tpl } = await supabase
-    .from('transactions')
-    .select('account_id, category_id, type, amount, currency, description')
-    .eq('id', templateId)
-    .eq('user_id', user.id)
-    .eq('is_template', true)
-    .maybeSingle();
-  if (!tpl) return { error: 'generic' };
-
-  const currency = tpl.currency as 'USD' | 'VES';
-  const latest = await getLatestRate(supabase);
-  if (currency === 'VES' && !latest) return { error: 'noRate' };
-  const rate = latest?.rate ?? 1;
-  const amount = round2(Number(tpl.amount));
-  const amountUsd = currency === 'VES' ? round2(amount / rate) : round2(amount);
-
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Caracas' }).format(
-    new Date(),
-  );
-
-  const { error } = await supabase.from('transactions').insert({
-    user_id: user.id,
-    account_id: tpl.account_id,
-    category_id: tpl.category_id,
-    type: tpl.type,
-    transfer_account_id: null,
-    amount,
-    currency,
-    exchange_rate: rate,
-    amount_usd: amountUsd,
-    description: tpl.description,
-    occurred_at: `${today}T12:00:00-04:00`,
-    is_fixed: false,
-    is_template: false,
-    fixed_day: null,
-    template_id: templateId,
-  });
-  if (error) return { error: 'generic' };
-
-  revalidatePath('/transactions');
-  revalidatePath('/accounts');
-  revalidatePath('/');
-  return { ok: true };
 }

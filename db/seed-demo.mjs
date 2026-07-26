@@ -201,40 +201,15 @@ await insert('goal_contributions', [
 ]);
 console.log('  1 meta con $300 reservados en Zinli');
 
-// --- Gastos fijos (plantillas dentro de transactions: is_template=true) ---
-await insert('transactions', [
-  {
-    user_id: uid,
-    account_id: banesco.id,
-    category_id: catId('Servicios'),
-    type: 'expense',
-    amount: round2(120 * rate),
-    currency: 'VES',
-    exchange_rate: rate,
-    amount_usd: 120,
-    description: 'Alquiler',
-    occurred_at: iso(now),
-    is_fixed: true,
-    is_template: true,
-    fixed_day: 5, // ya pasó este mes -> aparece "por registrar"
-  },
-  {
-    user_id: uid,
-    account_id: zinli.id,
-    category_id: catId('Ocio'),
-    type: 'expense',
-    amount: 8,
-    currency: 'USD',
-    exchange_rate: 1,
-    amount_usd: 8,
-    description: 'Netflix',
-    occurred_at: iso(now),
-    is_fixed: true,
-    is_template: true,
-    fixed_day: 28, // aún no llega este mes
-  },
-]);
-console.log('  2 gastos fijos (plantillas)');
+// --- Gasto recurrente: es un atributo de la CATEGORÍA de gasto ---
+const serviciosId = catId('Servicios');
+if (serviciosId) {
+  await api('PATCH', `categories?id=eq.${serviciosId}`, {
+    is_recurring: true,
+    recurring_day: 5,
+  });
+  console.log('  categoría "Servicios" marcada como recurrente (día 5)');
+}
 
 // --- Compras: tiendas, productos con precios, y carritos ---
 const [gama] = await insert('stores', [

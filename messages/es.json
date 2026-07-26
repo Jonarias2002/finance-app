@@ -180,7 +180,14 @@
       "required": "Este campo es obligatorio.",
       "tooLong": "Máximo 40 caracteres.",
       "generic": "No se pudo guardar. Intenta de nuevo.",
-      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
+      "dayRange": "El día debe estar entre 1 y 31."
+    },
+    "recurring": {
+      "label": "Es un gasto recurrente (se repite cada mes)",
+      "day": "Día del mes",
+      "dayHint": "Del 1 al 31.",
+      "badge": "Recurrente · día {day}"
     }
   },
   "transactions": {
@@ -204,8 +211,7 @@
       "all": "Todos",
       "income": "Ingresos",
       "expense": "Gastos",
-      "transfer": "Transferencias",
-      "recurring": "Recurrentes"
+      "transfer": "Transferencias"
     },
     "emptyTab": "No hay movimientos de este tipo.",
     "fields": {
@@ -217,10 +223,13 @@
       "product": "Producto",
       "description": "Descripción",
       "date": "Fecha",
-      "amount": "Monto"
+      "amount": "Monto",
+      "rate": "Tasa"
     },
     "pickProduct": "Elegir un producto…",
     "productHint": "Autocompleta la descripción con un producto de esta categoría.",
+    "rateHint": "Bolívares por 1 USD. Déjalo vacío para usar la tasa de la fecha elegida.",
+    "rateAuto": "Usar tasa del día",
     "noCategory": "Sin categoría",
     "needSecondAccount": "Necesitas otra cuenta de la misma moneda para transferir.",
     "descriptionPlaceholder": "Ej. Mercado, Sueldo, Uber",
@@ -240,24 +249,7 @@
       "sameAccount": "El origen y el destino deben ser distintos.",
       "currencyMismatch": "Solo puedes transferir entre cuentas de la misma moneda.",
       "generic": "No se pudo guardar. Intenta de nuevo.",
-      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
-      "dayRange": "El día debe estar entre 1 y 31."
-    },
-    "fixed": {
-      "label": "Es un gasto fijo (se repite cada mes)",
-      "day": "Día del mes",
-      "dayHint": "Del 1 al 31.",
-      "dayCol": "Día",
-      "dayValue": "Día {day}",
-      "new": "Nuevo gasto fijo",
-      "edit": "Editar gasto fijo",
-      "post": "Registrar ahora",
-      "postConfirm": "¿Registrar «{description}» como gasto de este mes?",
-      "empty": {
-        "title": "Aún no hay gastos fijos",
-        "description": "Marca «gasto fijo» al registrar un gasto para crear una plantilla que se repite cada mes."
-      },
-      "statusCol": "Estado"
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
     },
     "dateFilter": {
       "from": "Desde",

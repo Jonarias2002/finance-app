@@ -180,7 +180,14 @@
       "required": "This field is required.",
       "tooLong": "40 characters max.",
       "generic": "Could not save. Try again.",
-      "unauthenticated": "Your session expired. Sign in again."
+      "unauthenticated": "Your session expired. Sign in again.",
+      "dayRange": "Day must be between 1 and 31."
+    },
+    "recurring": {
+      "label": "This is a recurring expense (repeats monthly)",
+      "day": "Day of month",
+      "dayHint": "1 to 31.",
+      "badge": "Recurring · day {day}"
     }
   },
   "transactions": {
@@ -204,8 +211,7 @@
       "all": "All",
       "income": "Income",
       "expense": "Expenses",
-      "transfer": "Transfers",
-      "recurring": "Recurring"
+      "transfer": "Transfers"
     },
     "emptyTab": "No transactions of this type.",
     "fields": {
@@ -217,10 +223,13 @@
       "product": "Product",
       "description": "Description",
       "date": "Date",
-      "amount": "Amount"
+      "amount": "Amount",
+      "rate": "Rate"
     },
     "pickProduct": "Pick a product…",
     "productHint": "Autofills the description with a product from this category.",
+    "rateHint": "Bolívars per 1 USD. Leave empty to use the rate for the selected date.",
+    "rateAuto": "Use date's rate",
     "noCategory": "No category",
     "needSecondAccount": "You need another account in the same currency to transfer.",
     "descriptionPlaceholder": "e.g. Groceries, Salary, Uber",
@@ -240,24 +249,7 @@
       "sameAccount": "Source and destination must be different.",
       "currencyMismatch": "You can only transfer between accounts of the same currency.",
       "generic": "Could not save. Try again.",
-      "unauthenticated": "Your session expired. Sign in again.",
-      "dayRange": "Day must be between 1 and 31."
-    },
-    "fixed": {
-      "label": "This is a fixed expense (repeats monthly)",
-      "day": "Day of month",
-      "dayHint": "1 to 31.",
-      "dayCol": "Day",
-      "dayValue": "Day {day}",
-      "new": "New fixed expense",
-      "edit": "Edit fixed expense",
-      "post": "Log now",
-      "postConfirm": "Log “{description}” as this month’s expense?",
-      "empty": {
-        "title": "No fixed expenses yet",
-        "description": "Check “fixed expense” when logging an expense to create a template that repeats every month."
-      },
-      "statusCol": "Status"
+      "unauthenticated": "Your session expired. Sign in again."
     },
     "dateFilter": {
       "from": "From",

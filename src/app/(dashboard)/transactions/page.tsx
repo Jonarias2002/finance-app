@@ -1,12 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
-import { getLatestRate } from '@/features/exchange-rates/get-latest-rate';
+import { getRateHistory } from '@/features/exchange-rates/get-latest-rate';
 import { TransactionsManager } from '@/features/transactions/transactions-manager';
 import type {
   AccountOption,
   CategoryOption,
-  CycleStatus,
   ProductOption,
-  TemplateRow,
   TxnRow,
   TxnType,
 } from '@/features/transactions/schemas';
@@ -23,33 +21,25 @@ export default async function TransactionsPage() {
 
   // Dos FKs a accounts: hay que desambiguar el embed con el hint de columna.
   const cols =
-    'id, type, account_id, transfer_account_id, category_id, amount, currency, amount_usd, exchange_rate, description, occurred_at, is_fixed, is_template, fixed_day, template_id, source:accounts!account_id(name), dest:accounts!transfer_account_id(name), categories(name)';
+    'id, type, account_id, transfer_account_id, category_id, amount, currency, amount_usd, exchange_rate, description, occurred_at, source:accounts!account_id(name), dest:accounts!transfer_account_id(name), categories(name)';
 
   const [
     { data: txns },
-    { data: tpls },
-    { data: statuses },
     { data: accounts },
     { data: categories },
     { data: products },
-    rate,
+    rateHistory,
   ] = await Promise.all([
-    // Libro contable: movimientos reales (las plantillas no cuentan aquí).
     supabase
       .from('transactions')
       .select(cols)
-      .eq('is_template', false)
       .in('type', ['income', 'expense'])
       .order('occurred_at', { ascending: false })
       .limit(100),
-    // Plantillas de gasto fijo, para la pestaña "Recurrentes".
-    supabase.from('transactions').select(cols).eq('is_template', true).order('fixed_day'),
-    // Estado del ciclo vigente de cada plantilla (derivado en la vista).
-    supabase.from('fixed_expense_status').select('template_id, status'),
     supabase.from('accounts').select('id, name, currency').eq('is_archived', false).order('name'),
     supabase.from('categories').select('id, name, kind').order('name'),
     supabase.from('products').select('id, name, default_category_id').order('name'),
-    getLatestRate(supabase),
+    getRateHistory(supabase),
   ]);
 
   type TxnRecord = NonNullable<typeof txns>[number];
@@ -72,21 +62,10 @@ export default async function TransactionsPage() {
       exchangeRate: Number(tx.exchange_rate),
       description: tx.description as string,
       occurredAt: tx.occurred_at as string,
-      isFixed: tx.is_fixed as boolean,
-      isTemplate: tx.is_template as boolean,
-      fixedDay: (tx.fixed_day as number | null) ?? null,
-      templateId: (tx.template_id as string | null) ?? null,
     };
   };
 
   const rows: TxnRow[] = (txns ?? []).map(toRow);
-  const statusById = new Map<string, CycleStatus>(
-    (statuses ?? []).map((s) => [s.template_id as string, s.status as CycleStatus]),
-  );
-  const templates: TemplateRow[] = (tpls ?? []).map((tx) => ({
-    ...toRow(tx),
-    cycleStatus: statusById.get(tx.id as string) ?? 'pending',
-  }));
 
   const accountOptions: AccountOption[] = (accounts ?? []).map((a) => ({
     id: a.id as string,
@@ -113,12 +92,10 @@ export default async function TransactionsPage() {
   return (
     <TransactionsManager
       transactions={rows}
-      templates={templates}
       accounts={accountOptions}
       categories={categoryOptions}
       products={productOptions}
-      rate={rate?.rate ?? 0}
-      rateDate={rate?.date ?? today}
+      rateHistory={rateHistory}
       today={today}
     />
   );

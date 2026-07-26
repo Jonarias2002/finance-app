@@ -11,7 +11,8 @@ import {
 } from '@/components/ui/dialog';
 import { Field, Input, Select, Button, Alert, AmountInput } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import type { Currency } from '@/lib/format';
+import { formatRate, type Currency } from '@/lib/format';
+import { rateOnOrBefore, type RatePoint } from '@/features/exchange-rates/rate-history';
 import { saveTransaction } from './actions';
 import type { AccountOption, CategoryOption, ProductOption, TxnRow, TxnType } from './schemas';
 
@@ -22,24 +23,26 @@ type Props = {
   accounts: AccountOption[];
   categories: CategoryOption[];
   products: ProductOption[];
-  rate: number;
-  rateDate: string;
+  rateHistory: RatePoint[];
   defaultDate: string;
   defaultType: TxnType;
-  /** Al crear desde la pestaña Recurrentes, la casilla "gasto fijo" arranca marcada. */
-  defaultFixed?: boolean;
   onSaved: () => void;
 };
+
+/** "36,50" o "36.5" -> 36.5. Vacío o inválido -> null. */
+function parseRate(text: string): number | null {
+  const n = Number(text.replace(/\./g, '').replace(',', '.'));
+  return text.trim() && Number.isFinite(n) && n > 0 ? n : null;
+}
 
 export function TransactionFormDialog(props: Props) {
   const t = useTranslations('transactions');
   const { open, onOpenChange, transaction } = props;
-  const title = transaction ? (transaction.isTemplate ? t('fixed.edit') : t('edit')) : t('new');
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{transaction ? t('edit') : t('new')}</DialogTitle>
         </DialogHeader>
         <TransactionForm key={transaction?.id ?? 'new'} {...props} />
       </DialogContent>
@@ -53,11 +56,9 @@ function TransactionForm({
   accounts,
   categories,
   products,
-  rate,
-  rateDate,
+  rateHistory,
   defaultDate,
   defaultType,
-  defaultFixed = false,
   onSaved,
 }: Props) {
   const t = useTranslations('transactions');
@@ -74,11 +75,22 @@ function TransactionForm({
   const [transferId, setTransferId] = useState<string>(transaction?.transferAccountId ?? '');
   const [description, setDescription] = useState<string>(transaction?.description ?? '');
   const [productId, setProductId] = useState<string>('');
-  // Casilla "es un gasto fijo" + su día del mes.
-  const [isFixed, setIsFixed] = useState<boolean>(transaction?.isTemplate ?? defaultFixed);
-  const [fixedDay, setFixedDay] = useState<string>(
-    transaction?.fixedDay ? String(transaction.fixedDay) : '',
+
+  const dateForInput = transaction
+    ? new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Caracas' }).format(
+        new Date(transaction.occurredAt),
+      )
+    : defaultDate;
+  const [occurredAt, setOccurredAt] = useState<string>(dateForInput);
+
+  // Tasa manual: vacío = seguir la tasa de la fecha elegida. Al editar arranca con
+  // la tasa congelada del movimiento para no alterarla sin querer (ADR 12).
+  const [rateText, setRateText] = useState<string>(
+    transaction && transaction.currency === 'VES'
+      ? String(transaction.exchangeRate).replace('.', ',')
+      : '',
   );
+  const [showRate, setShowRate] = useState(false);
 
   useEffect(() => {
     if (state?.ok) onSaved();
@@ -93,11 +105,16 @@ function TransactionForm({
     [amountText],
   );
 
-  const dateForInput = transaction
-    ? new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Caracas' }).format(
-        new Date(transaction.occurredAt),
-      )
-    : defaultDate;
+  // Tasa efectiva: la manual si el usuario escribió una; si no, la del día elegido.
+  const autoPoint = useMemo(
+    () => rateOnOrBefore(rateHistory, occurredAt),
+    [rateHistory, occurredAt],
+  );
+  const manualRate = parseRate(rateText);
+  const effectiveRate = manualRate ?? autoPoint?.rate ?? 0;
+  // Fecha que mostramos junto a la tasa: la del movimiento si es manual, o la de la
+  // fila usada si seguimos el histórico (puede ser anterior si ese día no hubo tasa).
+  const rateLabelDate = `${manualRate ? occurredAt : (autoPoint?.date ?? occurredAt)}T12:00:00-04:00`;
 
   const categoryOptions = categories.filter((c) => c.kind === type);
   // Productos vinculados a la categoría elegida (por su categoría por defecto).
@@ -118,8 +135,6 @@ function TransactionForm({
     return <p className="text-body text-sage py-4">{t('needAccount.description')}</p>;
   }
 
-  const showFixed = !isTransfer && type === 'expense';
-
   return (
     <form action={action} className="space-y-4">
       {transaction && <input type="hidden" name="id" value={transaction.id} />}
@@ -131,6 +146,8 @@ function TransactionForm({
       ) : (
         <input type="hidden" name="categoryId" value={categoryId} />
       )}
+      {/* Solo enviamos tasa cuando es manual; si va vacío, el servidor toma la del día. */}
+      <input type="hidden" name="exchangeRate" value={manualRate ?? ''} />
 
       {/* Tipo */}
       <div role="radiogroup" aria-label={t('fields.type')} className="grid grid-cols-2 gap-2">
@@ -150,7 +167,6 @@ function TransactionForm({
                 setType(v);
                 setCategoryId('');
                 setProductId('');
-                if (v !== 'expense') setIsFixed(false);
               }}
               className={cn(
                 'rounded-control text-caption h-11 border font-medium transition-colors',
@@ -167,12 +183,33 @@ function TransactionForm({
       <AmountInput
         value={amountText}
         currency={currency}
-        rate={rate}
-        rateDate={rateDate}
+        rate={effectiveRate}
+        rateDate={rateLabelDate}
         onValueChange={setAmountText}
         onCurrencyChange={onCurrencyChange}
+        onEditRate={currency === 'VES' ? () => setShowRate((s) => !s) : undefined}
       />
       {err('amount') && <p className="text-caption text-ladrillo">{err('amount')}</p>}
+
+      {/* Tasa manual (opcional). Vacío = tasa de la fecha elegida. */}
+      {currency === 'VES' && showRate && (
+        <Field label={t('fields.rate')} htmlFor="rate" hint={t('rateHint')}>
+          <div className="flex items-center gap-2">
+            <Input
+              id="rate"
+              inputMode="decimal"
+              value={rateText}
+              onChange={(e) => setRateText(e.target.value)}
+              placeholder={autoPoint ? formatRate(autoPoint.rate) : ''}
+            />
+            {rateText.trim() && (
+              <Button type="button" variant="ghost" size="sm" onClick={() => setRateText('')}>
+                {t('rateAuto')}
+              </Button>
+            )}
+          </div>
+        </Field>
+      )}
 
       {/* 2. Descripción */}
       <Field
@@ -275,45 +312,15 @@ function TransactionForm({
 
       {/* 5. Fecha */}
       <Field label={t('fields.date')} htmlFor="occurredAt">
-        <Input id="occurredAt" name="occurredAt" type="date" defaultValue={dateForInput} required />
+        <Input
+          id="occurredAt"
+          name="occurredAt"
+          type="date"
+          value={occurredAt}
+          onChange={(e) => setOccurredAt(e.target.value)}
+          required
+        />
       </Field>
-
-      {/* 6. Casilla "es un gasto fijo" + 7. día del mes (solo gastos) */}
-      {showFixed && (
-        <div className="border-line space-y-3 border-t pt-4">
-          <label className="text-body text-ink flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="isFixed"
-              checked={isFixed}
-              onChange={(e) => setIsFixed(e.target.checked)}
-              className="accent-ink size-4"
-            />
-            {t('fixed.label')}
-          </label>
-
-          {isFixed && (
-            <Field
-              label={t('fixed.day')}
-              htmlFor="fixedDay"
-              hint={t('fixed.dayHint')}
-              error={err('fixedDay')}
-            >
-              <Input
-                id="fixedDay"
-                name="fixedDay"
-                type="number"
-                min={1}
-                max={31}
-                value={fixedDay}
-                onChange={(e) => setFixedDay(e.target.value)}
-                className="w-24"
-                required
-              />
-            </Field>
-          )}
-        </div>
-      )}
 
       {state?.error && (
         <Alert level="critical" dismissible={false}>
@@ -332,7 +339,12 @@ function TransactionForm({
         </Button>
         <Button
           type="submit"
-          disabled={pending || amount <= 0 || (isTransfer && !destId) || (isFixed && !fixedDay)}
+          disabled={
+            pending ||
+            amount <= 0 ||
+            (isTransfer && !destId) ||
+            (currency === 'VES' && effectiveRate <= 0)
+          }
         >
           {t('save')}
         </Button>

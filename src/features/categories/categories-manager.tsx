@@ -7,6 +7,7 @@ import {
   Card,
   EmptyState,
   Button,
+  Pill,
   Tabs,
   Table,
   Th,
@@ -94,6 +95,9 @@ export function CategoriesManager({ categories }: Props) {
                         <span className="text-label text-sage tracking-[0.06em] uppercase">
                           · {t('system')}
                         </span>
+                      )}
+                      {cat.isRecurring && (
+                        <Pill>{t('recurring.badge', { day: cat.recurringDay ?? 1 })}</Pill>
                       )}
                     </span>
                   </Td>

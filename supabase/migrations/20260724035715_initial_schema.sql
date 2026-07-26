@@ -154,7 +154,13 @@ create table public.categories (
   kind        public.category_kind not null,
   parent_id   uuid references public.categories (id) on delete set null,
   is_system   boolean not null default false,        -- seeded defaults
-  created_at  timestamptz not null default now()
+  -- Gasto recurrente: una categoría de gasto puede marcarse como recurrente y
+  -- fijar el día del mes en que se repite. Lo recurrente vive en la categoría.
+  is_recurring  boolean not null default false,
+  recurring_day smallint check (recurring_day between 1 and 31),
+  created_at  timestamptz not null default now(),
+  check (is_recurring = false or recurring_day is not null),
+  check (is_recurring = false or kind = 'expense')
 );
 
 create index categories_user_idx on public.categories (user_id);

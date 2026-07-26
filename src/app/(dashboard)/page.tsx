@@ -31,31 +31,15 @@ export default async function DashboardPage({
   );
   const cfg = buildRange(range, today, locale);
 
-  const monthStartIso = `${today.slice(0, 7)}-01T00:00:00-04:00`;
-  const [
-    { data: txns },
-    { data: balances },
-    rate,
-    { data: debts },
-    { data: templates },
-    { data: postedThisMonth },
-  ] = await Promise.all([
+  const [{ data: txns }, { data: balances }, rate, { data: debts }] = await Promise.all([
     supabase
       .from('transactions')
       .select('type, amount_usd, occurred_at, categories(name)')
-      // Las plantillas de gasto fijo no cuentan en el análisis (no son dinero movido).
-      .eq('is_template', false)
       .in('type', ['income', 'expense'])
       .gte('occurred_at', cfg.startIso),
     supabase.from('account_balances').select('currency, available_balance'),
     getLatestRate(supabase),
     supabase.from('debts').select('direction, due_date, is_settled'),
-    supabase.from('transactions').select('id, fixed_day').eq('is_template', true),
-    supabase
-      .from('transactions')
-      .select('template_id')
-      .not('template_id', 'is', null)
-      .gte('occurred_at', monthStartIso),
   ]);
 
   // --- Flujo por bucket (ingresos vs gastos, en USD) ---
@@ -117,13 +101,6 @@ export default async function DashboardPage({
     (d) => d.direction === 'i_owe' && !d.is_settled && d.due_date && (d.due_date as string) < today,
   ).length;
   if (overdue > 0) alerts.push(t('alerts.overdueDebts', { count: overdue }));
-  // Gastos fijos "por registrar": su día ya llegó este mes y aún no se han posteado.
-  const todayDay = Number(today.slice(8, 10));
-  const postedIds = new Set((postedThisMonth ?? []).map((r) => r.template_id as string));
-  const due = (templates ?? []).filter(
-    (tpl) => Number(tpl.fixed_day) <= todayDay && !postedIds.has(tpl.id as string),
-  ).length;
-  if (due > 0) alerts.push(t('alerts.dueRecurring', { count: due }));
 
   return (
     <>
