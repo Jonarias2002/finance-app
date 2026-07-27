@@ -2,7 +2,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { AlertTriangle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { getLatestRate } from '@/features/exchange-rates/get-latest-rate';
-import { Card, CardHeader, CardTitle, Label } from '@/components/ui';
+import { Card, CardHeader, CardTitle, Label, RateStamp } from '@/components/ui';
 import { StatTile } from '@/features/dashboard/stat-tile';
 import { CategoryChart, type CategorySlice } from '@/features/dashboard/category-chart';
 import {
@@ -210,7 +210,21 @@ export default async function DashboardPage({
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Label>{t('greeting', { name })}</Label>
+        <div className="flex flex-col items-start gap-1.5">
+          <Label>{t('greeting', { name })}</Label>
+          {rate && (
+            <RateStamp
+              rate={rate.rate}
+              source={rate.source === 'official' ? 'BCV' : 'Paralelo'}
+              // Mediodía en Caracas: evita que la fecha (solo día) retroceda al
+              // formatearla con zona horaria.
+              date={`${rate.date}T12:00:00-04:00`}
+              // El cron escribe una fila por día; si la más reciente no es de
+              // hoy, la sincronización de hoy no llegó.
+              stale={rate.date < today}
+            />
+          )}
+        </div>
         <RangeFilter active={range} />
       </div>
 
