@@ -57,10 +57,6 @@ function CategoryForm({
   const t = useTranslations('categories');
   const [state, action, pending] = useActionState(saveCategory, undefined);
   const [kind, setKind] = useState<CategoryKind>(category?.kind ?? defaultKind);
-  const [isRecurring, setIsRecurring] = useState<boolean>(category?.isRecurring ?? false);
-  const [recurringDay, setRecurringDay] = useState<string>(
-    category?.recurringDay ? String(category.recurringDay) : '',
-  );
 
   useEffect(() => {
     if (state?.ok) onSaved();
@@ -100,10 +96,7 @@ function CategoryForm({
                 type="button"
                 role="radio"
                 aria-checked={active}
-                onClick={() => {
-                  setKind(v);
-                  if (v !== 'expense') setIsRecurring(false);
-                }}
+                onClick={() => setKind(v)}
                 className={cn(
                   'rounded-control text-caption h-11 border font-medium transition-colors',
                   active ? activeCls : 'border-line text-sage hover:text-ink',
@@ -116,43 +109,6 @@ function CategoryForm({
         </div>
       </Field>
 
-      {/* Solo para gasto: marcarla como recurrente y su día del mes. */}
-      {kind === 'expense' && (
-        <div className="border-line space-y-3 border-t pt-4">
-          <label className="text-body text-ink flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="isRecurring"
-              checked={isRecurring}
-              onChange={(e) => setIsRecurring(e.target.checked)}
-              className="accent-ink size-4"
-            />
-            {t('recurring.label')}
-          </label>
-
-          {isRecurring && (
-            <Field
-              label={t('recurring.day')}
-              htmlFor="recurringDay"
-              hint={t('recurring.dayHint')}
-              error={err('recurringDay')}
-            >
-              <Input
-                id="recurringDay"
-                name="recurringDay"
-                type="number"
-                min={1}
-                max={31}
-                value={recurringDay}
-                onChange={(e) => setRecurringDay(e.target.value)}
-                className="w-24"
-                required
-              />
-            </Field>
-          )}
-        </div>
-      )}
-
       {state?.error && (
         <Alert level="critical" dismissible={false}>
           {t(`errors.${state.error}`)}
@@ -163,7 +119,7 @@ function CategoryForm({
         <Button type="button" variant="secondary" onClick={onCancel} disabled={pending}>
           {t('cancel')}
         </Button>
-        <Button type="submit" disabled={pending || (isRecurring && !recurringDay)}>
+        <Button type="submit" disabled={pending}>
           {t('save')}
         </Button>
       </DialogFooter>

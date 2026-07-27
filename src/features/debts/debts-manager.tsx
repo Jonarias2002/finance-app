@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Plus, Pencil, Trash2, HandCoins, Check, RotateCcw } from 'lucide-react';
+import { Plus, Pencil, Trash2, HandCoins, Check, RotateCcw, ScrollText } from 'lucide-react';
 import {
   Card,
   EmptyState,
@@ -65,7 +66,12 @@ export function DebtsManager({ debts, rate, today }: Props) {
       <Card className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-ink truncate font-medium">{debt.counterparty}</p>
+            <Link
+              href={`/debts/${debt.id}`}
+              className="text-ink truncate font-medium hover:underline"
+            >
+              {debt.counterparty}
+            </Link>
             {debt.description && <Caption className="line-clamp-1">{debt.description}</Caption>}
           </div>
           {debt.isSettled && <StatusBadge status="done" label={t('settled')} />}
@@ -101,16 +107,17 @@ export function DebtsManager({ debts, rate, today }: Props) {
         )}
 
         <div className="border-line -mx-5 mt-1 -mb-5 flex justify-end gap-1 border-t px-3 py-2">
+          <Link
+            href={`/debts/${debt.id}`}
+            className="rounded-control text-sage hover:bg-surface-2 hover:text-ink text-caption inline-flex h-9 items-center justify-center gap-2 px-3 font-medium transition-colors"
+          >
+            <ScrollText className="size-4" />
+            {t('actions.detail')}
+          </Link>
           {!debt.isSettled && (
             <Button size="sm" variant="ghost" onClick={() => openPayments(debt)}>
               <HandCoins className="size-4" />
               {t('actions.addPayment')}
-            </Button>
-          )}
-          {debt.isSettled && debt.payments.length > 0 && (
-            <Button size="sm" variant="ghost" onClick={() => openPayments(debt)}>
-              <HandCoins className="size-4" />
-              {t('actions.payments')}
             </Button>
           )}
           <Button

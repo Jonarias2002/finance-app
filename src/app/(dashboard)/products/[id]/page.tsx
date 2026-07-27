@@ -15,7 +15,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   const { data: product } = await supabase
     .from('products')
-    .select('id, name, unit, is_staple, typical_days, categories(name)')
+    .select(
+      'id, name, unit, is_staple, typical_days, is_recurring, recurring_day, categories(name)',
+    )
     .eq('id', id)
     .maybeSingle();
   if (!product) redirect('/products');
@@ -44,6 +46,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       categoryName={category?.name ?? null}
       isStaple={product.is_staple as boolean}
       typicalDays={(product.typical_days as number | null) ?? null}
+      recurringDay={
+        (product.is_recurring as boolean)
+          ? ((product.recurring_day as number | null) ?? null)
+          : null
+      }
       points={points}
     />
   );

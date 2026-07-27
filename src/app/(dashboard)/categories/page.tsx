@@ -7,7 +7,7 @@ export default async function CategoriesPage() {
 
   const { data: cats } = await supabase
     .from('categories')
-    .select('id, name, kind, parent_id, is_system, is_recurring, recurring_day')
+    .select('id, name, kind, parent_id, is_system')
     .order('name');
 
   const categories: CategoryRow[] = (cats ?? []).map((c) => ({
@@ -16,8 +16,6 @@ export default async function CategoriesPage() {
     kind: c.kind as CategoryRow['kind'],
     parentId: (c.parent_id as string | null) ?? null,
     isSystem: c.is_system as boolean,
-    isRecurring: c.is_recurring as boolean,
-    recurringDay: (c.recurring_day as number | null) ?? null,
   }));
 
   return <CategoriesManager categories={categories} />;

@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, PiggyBank, Check, RotateCcw } from 'lucide-react';
+import { Plus, Pencil, Trash2, PiggyBank, Check, RotateCcw, ScrollText } from 'lucide-react';
 import { Card, EmptyState, Button, Caption, Figure, Progress, StatusBadge } from '@/components/ui';
 import { formatMoney, formatDayMonth, formatPercent } from '@/lib/format';
 import { cn } from '@/lib/cn';
@@ -57,7 +57,12 @@ export function GoalsManager({ goals, accounts, today }: Props) {
       <Card className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-ink truncate font-medium">{goal.name}</p>
+            <Link
+              href={`/goals/${goal.id}`}
+              className="text-ink truncate font-medium hover:underline"
+            >
+              {goal.name}
+            </Link>
             <Caption className="line-clamp-1">
               {goal.accountName}
               {goal.targetDate &&
@@ -90,6 +95,13 @@ export function GoalsManager({ goals, accounts, today }: Props) {
         )}
 
         <div className="border-line -mx-5 mt-1 -mb-5 flex justify-end gap-1 border-t px-3 py-2">
+          <Link
+            href={`/goals/${goal.id}`}
+            className="rounded-control text-sage hover:bg-surface-2 hover:text-ink text-caption inline-flex h-9 items-center justify-center gap-2 px-3 font-medium transition-colors"
+          >
+            <ScrollText className="size-4" />
+            {t('actions.detail')}
+          </Link>
           <Button size="sm" variant="ghost" onClick={() => openContrib(goal)}>
             <PiggyBank className="size-4" />
             {t('actions.contribute')}

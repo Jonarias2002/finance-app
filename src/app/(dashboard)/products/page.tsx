@@ -13,7 +13,9 @@ export default async function ProductsPage() {
   const [{ data: products }, { data: stores }, { data: categories }] = await Promise.all([
     supabase
       .from('products')
-      .select('id, name, unit, default_category_id, is_staple, typical_days, categories(name)')
+      .select(
+        'id, name, unit, default_category_id, is_staple, typical_days, is_recurring, recurring_day, categories(name)',
+      )
       .order('name'),
     supabase.from('stores').select('id, name').order('name'),
     supabase.from('categories').select('id, name').eq('kind', 'expense').order('name'),
@@ -29,6 +31,8 @@ export default async function ProductsPage() {
       defaultCategoryName: category?.name ?? null,
       isStaple: p.is_staple as boolean,
       typicalDays: (p.typical_days as number | null) ?? null,
+      isRecurring: p.is_recurring as boolean,
+      recurringDay: (p.recurring_day as number | null) ?? null,
     };
   });
 

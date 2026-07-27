@@ -120,6 +120,9 @@ export function ProductsManager({
                             {p.name}
                           </Link>
                           {p.isStaple && <Pill>{t('staple')}</Pill>}
+                          {p.isRecurring && (
+                            <Pill>{t('recurring.badge', { day: p.recurringDay ?? 1 })}</Pill>
+                          )}
                         </span>
                         <span className="text-caption text-sage">
                           {t(`units.${p.unit}`)}

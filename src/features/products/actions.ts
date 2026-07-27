@@ -25,22 +25,28 @@ export async function saveProduct(_prev: ActionState, formData: FormData): Promi
 
   const rawCat = formData.get('defaultCategoryId');
   const rawDays = formData.get('typicalDays');
+  const rawRecurringDay = formData.get('recurringDay');
   const parsed = productSchema.safeParse({
     name: formData.get('name'),
     unit: formData.get('unit'),
     defaultCategoryId: rawCat ? String(rawCat) : null,
     isStaple: formData.get('isStaple') === 'on',
     typicalDays: rawDays ? Number(rawDays) : null,
+    isRecurring: formData.get('isRecurring') === 'on',
+    recurringDay: rawRecurringDay ? Number(rawRecurringDay) : null,
   });
   if (!parsed.success) return fieldErrorsFrom(parsed.error);
 
-  const { name, unit, defaultCategoryId, isStaple, typicalDays } = parsed.data;
+  const { name, unit, defaultCategoryId, isStaple, typicalDays, isRecurring, recurringDay } =
+    parsed.data;
   const values = {
     name: name.trim(),
     unit,
     default_category_id: defaultCategoryId,
     is_staple: isStaple,
     typical_days: typicalDays,
+    is_recurring: isRecurring,
+    recurring_day: isRecurring ? recurringDay : null,
   };
 
   const id = (formData.get('id') as string) || null;

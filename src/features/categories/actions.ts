@@ -23,26 +23,16 @@ export async function saveCategory(_prev: ActionState, formData: FormData): Prom
   } = await supabase.auth.getUser();
   if (!user) return { error: 'unauthenticated' };
 
-  const rawDay = formData.get('recurringDay');
   const parsed = categorySchema.safeParse({
     name: formData.get('name'),
     kind: formData.get('kind'),
-    isRecurring: formData.get('isRecurring') === 'on',
-    recurringDay: rawDay ? Number(rawDay) : null,
   });
   if (!parsed.success) return fieldErrorsFrom(parsed.error);
 
-  const { name, kind, isRecurring, recurringDay } = parsed.data;
+  const { name, kind } = parsed.data;
   const id = (formData.get('id') as string) || null;
 
-  // Lo recurrente solo aplica a categorías de gasto.
-  const recurring = kind === 'expense' && isRecurring;
-  const values = {
-    name,
-    kind,
-    is_recurring: recurring,
-    recurring_day: recurring ? recurringDay : null,
-  };
+  const values = { name, kind };
 
   // v1: categorías planas. parent_id permanece en la tabla para uso futuro; al
   // editar no se toca (se conserva su valor), y al crear queda null por defecto.

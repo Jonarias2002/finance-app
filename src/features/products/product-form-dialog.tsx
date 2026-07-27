@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Dialog,
@@ -39,6 +39,10 @@ export function ProductFormDialog(props: Props) {
 function ProductForm({ onOpenChange, product, categories, onSaved }: Props) {
   const t = useTranslations('products');
   const [state, action, pending] = useActionState(saveProduct, undefined);
+  const [isRecurring, setIsRecurring] = useState<boolean>(product?.isRecurring ?? false);
+  const [recurringDay, setRecurringDay] = useState<string>(
+    product?.recurringDay ? String(product.recurringDay) : '',
+  );
 
   useEffect(() => {
     if (state?.ok) onSaved();
@@ -108,6 +112,41 @@ function ProductForm({ onOpenChange, product, categories, onSaved }: Props) {
         />
       </Field>
 
+      {/* Servicio recurrente: su día de pago del mes (ej. CANTV el 5, Luz el 20). */}
+      <div className="border-line space-y-3 border-t pt-4">
+        <label className="text-body text-ink flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="isRecurring"
+            checked={isRecurring}
+            onChange={(e) => setIsRecurring(e.target.checked)}
+            className="accent-ink size-4"
+          />
+          {t('recurring.label')}
+        </label>
+
+        {isRecurring && (
+          <Field
+            label={t('recurring.day')}
+            htmlFor="recurringDay"
+            hint={t('recurring.dayHint')}
+            error={err('recurringDay')}
+          >
+            <Input
+              id="recurringDay"
+              name="recurringDay"
+              type="number"
+              min={1}
+              max={31}
+              value={recurringDay}
+              onChange={(e) => setRecurringDay(e.target.value)}
+              className="w-24"
+              required
+            />
+          </Field>
+        )}
+      </div>
+
       {state?.error && (
         <Alert level="critical" dismissible={false}>
           {t(`errors.${state.error}`)}
@@ -123,7 +162,7 @@ function ProductForm({ onOpenChange, product, categories, onSaved }: Props) {
         >
           {t('cancel')}
         </Button>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || (isRecurring && !recurringDay)}>
           {t('save')}
         </Button>
       </DialogFooter>

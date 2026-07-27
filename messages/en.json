@@ -180,14 +180,7 @@
       "required": "This field is required.",
       "tooLong": "40 characters max.",
       "generic": "Could not save. Try again.",
-      "unauthenticated": "Your session expired. Sign in again.",
-      "dayRange": "Day must be between 1 and 31."
-    },
-    "recurring": {
-      "label": "This is a recurring expense (repeats monthly)",
-      "day": "Day of month",
-      "dayHint": "1 to 31.",
-      "badge": "Recurring · day {day}"
+      "unauthenticated": "Your session expired. Sign in again."
     }
   },
   "transactions": {
@@ -283,6 +276,10 @@
     "settled": "Settled",
     "due": "Due",
     "overdue": "overdue",
+    "backToDebts": "Debts",
+    "paymentHistory": "Payment history",
+    "paymentCount": "{count, plural, =0 {No payments} =1 {# payment} other {# payments}}",
+    "noPayments": "No payments recorded yet.",
     "payments": {
       "title": "Payments",
       "amount": "Amount",
@@ -292,6 +289,7 @@
       "add": "Add payment"
     },
     "actions": {
+      "detail": "Detail",
       "addPayment": "Pay",
       "payments": "Payments",
       "settle": "Mark settled",
@@ -332,6 +330,10 @@
     "by": "by",
     "remaining": "Remaining",
     "achieved": "Achieved",
+    "backToGoals": "Goals",
+    "contributionHistory": "Contribution history",
+    "contributionCount": "{count, plural, =0 {No movements} =1 {# movement} other {# movements}}",
+    "noContributions": "No contributions recorded yet.",
     "contributions": {
       "title": "Contributions",
       "kind": "Type",
@@ -344,6 +346,7 @@
       "submit": "Record"
     },
     "actions": {
+      "detail": "Detail",
       "contribute": "Add",
       "markAchieved": "Mark achieved",
       "reopen": "Reopen",
@@ -413,6 +416,12 @@
     "staple": "Staple",
     "typicalDaysHint": "Optional. To know when to restock.",
     "everyDays": "every {count, plural, =1 {# day} other {# days}}",
+    "recurring": {
+      "label": "This is a recurring service (paid monthly)",
+      "day": "Payment day of month",
+      "dayHint": "1 to 31.",
+      "badge": "Recurring · day {day}"
+    },
     "backToProducts": "Products",
     "priceHistory": "Price history",
     "currency": "Currency",
@@ -446,7 +455,8 @@
       "required": "This field is required.",
       "tooLong": "Text is too long.",
       "generic": "Could not save. Try again.",
-      "unauthenticated": "Your session expired. Sign in again."
+      "unauthenticated": "Your session expired. Sign in again.",
+      "dayRange": "Day must be between 1 and 31."
     }
   },
   "shopping": {

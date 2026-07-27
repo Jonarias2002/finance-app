@@ -180,14 +180,7 @@
       "required": "Este campo es obligatorio.",
       "tooLong": "Máximo 40 caracteres.",
       "generic": "No se pudo guardar. Intenta de nuevo.",
-      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
-      "dayRange": "El día debe estar entre 1 y 31."
-    },
-    "recurring": {
-      "label": "Es un gasto recurrente (se repite cada mes)",
-      "day": "Día del mes",
-      "dayHint": "Del 1 al 31.",
-      "badge": "Recurrente · día {day}"
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
     }
   },
   "transactions": {
@@ -283,6 +276,10 @@
     "settled": "Saldada",
     "due": "Vence",
     "overdue": "vencida",
+    "backToDebts": "Deudas",
+    "paymentHistory": "Historial de abonos",
+    "paymentCount": "{count, plural, =0 {Sin abonos} =1 {# abono} other {# abonos}}",
+    "noPayments": "Aún no hay abonos registrados.",
     "payments": {
       "title": "Abonos",
       "amount": "Monto",
@@ -292,6 +289,7 @@
       "add": "Agregar abono"
     },
     "actions": {
+      "detail": "Detalle",
       "addPayment": "Abonar",
       "payments": "Abonos",
       "settle": "Marcar saldada",
@@ -332,6 +330,10 @@
     "by": "para",
     "remaining": "Faltan",
     "achieved": "Cumplida",
+    "backToGoals": "Metas",
+    "contributionHistory": "Historial de aportes",
+    "contributionCount": "{count, plural, =0 {Sin movimientos} =1 {# movimiento} other {# movimientos}}",
+    "noContributions": "Aún no hay aportes registrados.",
     "contributions": {
       "title": "Aportes",
       "kind": "Tipo",
@@ -344,6 +346,7 @@
       "submit": "Registrar"
     },
     "actions": {
+      "detail": "Detalle",
       "contribute": "Aportar",
       "markAchieved": "Marcar cumplida",
       "reopen": "Reabrir",
@@ -413,6 +416,12 @@
     "staple": "Básico",
     "typicalDaysHint": "Opcional. Para saber cuándo reponerlo.",
     "everyDays": "cada {count, plural, =1 {# día} other {# días}}",
+    "recurring": {
+      "label": "Es un servicio recurrente (se paga cada mes)",
+      "day": "Día de pago del mes",
+      "dayHint": "Del 1 al 31.",
+      "badge": "Recurrente · día {day}"
+    },
     "backToProducts": "Productos",
     "priceHistory": "Historial de precios",
     "currency": "Moneda",
@@ -446,7 +455,8 @@
       "required": "Este campo es obligatorio.",
       "tooLong": "El texto es demasiado largo.",
       "generic": "No se pudo guardar. Intenta de nuevo.",
-      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
+      "dayRange": "El día debe estar entre 1 y 31."
     }
   },
   "shopping": {

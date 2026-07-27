@@ -16,10 +16,19 @@ type Props = {
   categoryName: string | null;
   isStaple: boolean;
   typicalDays: number | null;
+  recurringDay: number | null;
   points: PricePoint[];
 };
 
-export function ProductDetail({ name, unit, categoryName, isStaple, typicalDays, points }: Props) {
+export function ProductDetail({
+  name,
+  unit,
+  categoryName,
+  isStaple,
+  typicalDays,
+  recurringDay,
+  points,
+}: Props) {
   const t = useTranslations('products');
   const [currency, setCurrency] = useState<'USD' | 'VES'>('USD');
 
@@ -47,6 +56,7 @@ export function ProductDetail({ name, unit, categoryName, isStaple, typicalDays,
           {t(`units.${unit}`)}
           {categoryName ? ` · ${categoryName}` : ''}
           {typicalDays ? ` · ${t('everyDays', { count: typicalDays })}` : ''}
+          {recurringDay ? ` · ${t('recurring.badge', { day: recurringDay })}` : ''}
         </Caption>
       </Card>
 
