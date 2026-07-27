@@ -4,12 +4,42 @@ import { createClient } from '@/lib/supabase/server';
 import { getLatestRate } from '@/features/exchange-rates/get-latest-rate';
 import { Card, CardHeader, CardTitle, Label } from '@/components/ui';
 import { StatTile } from '@/features/dashboard/stat-tile';
-import { SpendingChart, type FlowPoint } from '@/features/dashboard/spending-chart';
 import { CategoryChart, type CategorySlice } from '@/features/dashboard/category-chart';
+import {
+  UpcomingServices,
+  GoalsProgress,
+  DebtsProgress,
+  type ServiceItem,
+  type GoalItem,
+  type DebtItem,
+} from '@/features/dashboard/home-panels';
 import { RangeFilter } from '@/features/dashboard/range-filter';
 import { buildRange, parseRange } from '@/features/dashboard/ranges';
+import type { Currency } from '@/lib/format';
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/** Próxima ocurrencia de un día del mes a partir de hoy (YYYY-MM-DD en Caracas). */
+function nextServiceDate(todayStr: string, day: number): { date: string; daysAway: number } {
+  const [ys, ms, ds] = todayStr.split('-');
+  const y = Number(ys);
+  const m = Number(ms); // 1-12
+  const d = Number(ds);
+  let year = y;
+  let month = m; // 1-12
+  if (day < d) {
+    month += 1;
+    if (month > 12) {
+      month = 1;
+      year += 1;
+    }
+  }
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const dd = Math.min(day, daysInMonth);
+  const date = `${year}-${String(month).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+  const daysAway = Math.round((Date.UTC(year, month - 1, dd) - Date.UTC(y, m - 1, d)) / 86400000);
+  return { date, daysAway };
+}
 
 export default async function DashboardPage({
   searchParams,
@@ -31,7 +61,16 @@ export default async function DashboardPage({
   );
   const cfg = buildRange(range, today, locale);
 
-  const [{ data: txns }, { data: balances }, rate, { data: debts }] = await Promise.all([
+  const [
+    { data: txns },
+    { data: balances },
+    rate,
+    { data: debts },
+    { data: debtPayments },
+    { data: goals },
+    { data: goalContribs },
+    { data: services },
+  ] = await Promise.all([
     supabase
       .from('transactions')
       .select('type, amount_usd, occurred_at, categories(name)')
@@ -39,46 +78,48 @@ export default async function DashboardPage({
       .gte('occurred_at', cfg.startIso),
     supabase.from('account_balances').select('currency, available_balance'),
     getLatestRate(supabase),
-    supabase.from('debts').select('direction, due_date, is_settled'),
+    supabase
+      .from('debts')
+      .select('id, direction, counterparty, principal, currency, due_date, is_settled'),
+    supabase.from('debt_payments').select('debt_id, amount'),
+    supabase
+      .from('savings_goals')
+      .select('id, name, currency, target_amount, target_date, is_achieved'),
+    supabase.from('goal_contributions').select('goal_id, amount'),
+    supabase
+      .from('products')
+      .select('id, name, recurring_day, categories(name)')
+      .eq('is_recurring', true),
   ]);
 
-  // --- Flujo por bucket (ingresos vs gastos, en USD) ---
-  const index = new Map(cfg.buckets.map((b, i) => [b.key, i]));
-  const flow: FlowPoint[] = cfg.buckets.map((b) => ({ label: b.label, income: 0, expense: 0 }));
+  // --- Totales del período (USD) + gasto por categoría ---
+  let incomeTotal = 0;
+  let expenseTotal = 0;
   const categories = new Map<string, number>();
-  const dateFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Caracas' });
   const noCategory = t('charts.noCategory');
 
   for (const tx of txns ?? []) {
-    const dateKey = dateFmt.format(new Date(tx.occurred_at as string));
-    const key = cfg.granularity === 'month' ? dateKey.slice(0, 7) : dateKey;
-    const i = index.get(key);
     const usd = Number(tx.amount_usd);
-    if (i !== undefined) {
-      if (tx.type === 'income') flow[i]!.income += usd;
-      else flow[i]!.expense += usd;
-    }
-    if (tx.type === 'expense') {
+    if (tx.type === 'income') {
+      incomeTotal += usd;
+    } else {
+      expenseTotal += usd;
       const embed = tx.categories as { name: string } | { name: string }[] | null;
       const catName = Array.isArray(embed) ? embed[0]?.name : embed?.name;
       const nameKey = catName ?? noCategory;
       categories.set(nameKey, (categories.get(nameKey) ?? 0) + usd);
     }
   }
-  for (const p of flow) {
-    p.income = round2(p.income);
-    p.expense = round2(p.expense);
-  }
-
-  const incomeTotal = round2(flow.reduce((s, p) => s + p.income, 0));
-  const expenseTotal = round2(flow.reduce((s, p) => s + p.expense, 0));
+  incomeTotal = round2(incomeTotal);
+  expenseTotal = round2(expenseTotal);
   const netTotal = round2(incomeTotal - expenseTotal);
 
   // Top categorías + "Otras"
   const sorted = [...categories.entries()].sort((a, b) => b[1] - a[1]);
-  const top = sorted.slice(0, 6);
+  const catItems: CategorySlice[] = sorted
+    .slice(0, 6)
+    .map(([nm, amt]) => ({ name: nm, amount: round2(amt) }));
   const rest = sorted.slice(6);
-  const catItems: CategorySlice[] = top.map(([nm, amt]) => ({ name: nm, amount: round2(amt) }));
   if (rest.length > 0) {
     catItems.push({
       name: t('charts.other'),
@@ -93,6 +134,70 @@ export default async function DashboardPage({
     availableUsd += b.currency === 'USD' ? av : rate ? av / rate.rate : 0;
   }
   availableUsd = round2(availableUsd);
+
+  // --- Próximos gastos fijos (servicios recurrentes), por cercanía ---
+  const serviceItems: ServiceItem[] = (services ?? [])
+    .map((p) => {
+      const embed = p.categories as { name: string } | { name: string }[] | null;
+      const categoryName = (Array.isArray(embed) ? embed[0]?.name : embed?.name) ?? null;
+      const { date, daysAway } = nextServiceDate(today, Number(p.recurring_day));
+      return { id: p.id as string, name: p.name as string, categoryName, date, daysAway };
+    })
+    .sort((a, b) => a.daysAway - b.daysAway);
+
+  // --- Metas: reunido vs meta (no cumplidas), por fecha objetivo más próxima ---
+  const savedByGoal = new Map<string, number>();
+  for (const c of goalContribs ?? [])
+    savedByGoal.set(
+      c.goal_id as string,
+      (savedByGoal.get(c.goal_id as string) ?? 0) + Number(c.amount),
+    );
+  const goalItems: GoalItem[] = (goals ?? [])
+    .filter((g) => !g.is_achieved)
+    .map((g) => ({
+      item: {
+        id: g.id as string,
+        name: g.name as string,
+        currency: g.currency as Currency,
+        target: Number(g.target_amount),
+        saved: Math.max(round2(savedByGoal.get(g.id as string) ?? 0), 0),
+      },
+      key: (g.target_date as string | null) ?? '9999-99-99',
+    }))
+    .sort((a, b) => a.key.localeCompare(b.key))
+    .map((r) => r.item);
+
+  // --- Deudas: pagado vs total (no saldadas); "debo" primero, luego mayor saldo ---
+  const paidByDebt = new Map<string, number>();
+  for (const p of debtPayments ?? [])
+    paidByDebt.set(
+      p.debt_id as string,
+      (paidByDebt.get(p.debt_id as string) ?? 0) + Number(p.amount),
+    );
+  const debtItems: DebtItem[] = (debts ?? [])
+    .filter((d) => !d.is_settled)
+    .map((d) => {
+      const principal = Number(d.principal);
+      const paid = round2(paidByDebt.get(d.id as string) ?? 0);
+      const direction = d.direction as DebtItem['direction'];
+      return {
+        item: {
+          id: d.id as string,
+          counterparty: d.counterparty as string,
+          direction,
+          currency: d.currency as Currency,
+          principal,
+          paid,
+        },
+        remaining: round2(Math.max(principal - paid, 0)),
+        direction,
+      };
+    })
+    .sort((a, b) => {
+      if (a.direction !== b.direction) return a.direction === 'i_owe' ? -1 : 1;
+      return b.remaining - a.remaining;
+    })
+    .map((r) => r.item);
 
   // --- Alertas (calculadas, no persistidas — ADR 17) ---
   const alerts: string[] = [];
@@ -136,12 +241,14 @@ export default async function DashboardPage({
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('charts.flow')}</CardTitle>
-        </CardHeader>
-        <SpendingChart data={flow} />
-      </Card>
+      {serviceItems.length > 0 && <UpcomingServices items={serviceItems} />}
+
+      {(goalItems.length > 0 || debtItems.length > 0) && (
+        <div className="grid gap-3 lg:grid-cols-2">
+          {goalItems.length > 0 && <GoalsProgress items={goalItems} />}
+          {debtItems.length > 0 && <DebtsProgress items={debtItems} />}
+        </div>
+      )}
 
       <Card>
         <CardHeader>

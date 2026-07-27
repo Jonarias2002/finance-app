@@ -87,6 +87,16 @@
       "noCategory": "Uncategorized",
       "other": "Other"
     },
+    "home": {
+      "seeAll": "See all",
+      "remaining": "Remaining",
+      "upcomingTitle": "Upcoming fixed expenses",
+      "dueToday": "today",
+      "dueTomorrow": "tomorrow",
+      "dueInDays": "in {days, plural, =1 {# day} other {# days}}",
+      "goalsTitle": "Goals",
+      "debtsTitle": "Debts"
+    },
     "alerts": {
       "overspend": "You're spending more than you earn this period.",
       "overdueDebts": "You have {count, plural, =1 {# overdue debt} other {# overdue debts}}.",

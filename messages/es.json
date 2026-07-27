@@ -87,6 +87,16 @@
       "noCategory": "Sin categoría",
       "other": "Otras"
     },
+    "home": {
+      "seeAll": "Ver todo",
+      "remaining": "Falta",
+      "upcomingTitle": "Próximos gastos fijos",
+      "dueToday": "hoy",
+      "dueTomorrow": "mañana",
+      "dueInDays": "en {days, plural, =1 {# día} other {# días}}",
+      "goalsTitle": "Metas",
+      "debtsTitle": "Deudas"
+    },
     "alerts": {
       "overspend": "En este periodo gastas más de lo que ingresas.",
       "overdueDebts": "Tienes {count, plural, =1 {# deuda vencida} other {# deudas vencidas}}.",
