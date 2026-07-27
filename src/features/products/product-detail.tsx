@@ -40,7 +40,7 @@ export function ProductDetail({
   return (
     <>
       <Link
-        href="/products"
+        href="/manage?tab=products"
         className="text-sage hover:text-ink text-caption inline-flex items-center gap-1.5 transition-colors"
       >
         <ArrowLeft className="size-4" />

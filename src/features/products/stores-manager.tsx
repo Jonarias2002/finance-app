@@ -1,14 +1,12 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import {
   Card,
   EmptyState,
   Button,
-  Pill,
   Table,
   Th,
   Tr,
@@ -16,30 +14,24 @@ import {
   Pagination,
   usePagination,
 } from '@/components/ui';
-import { ProductFormDialog } from './product-form-dialog';
-import { deleteProduct } from './actions';
-import type { CategoryOption, ProductRow } from './schemas';
+import { StoreFormDialog } from './store-form-dialog';
+import { deleteStore } from './actions';
+import type { StoreRow } from './schemas';
 
-export function ProductsManager({
-  products,
-  categories,
-}: {
-  products: ProductRow[];
-  categories: CategoryOption[];
-}) {
+export function StoresManager({ stores }: { stores: StoreRow[] }) {
   const t = useTranslations('products');
   const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<ProductRow | null>(null);
+  const [editing, setEditing] = useState<StoreRow | null>(null);
   const [isPending, startTransition] = useTransition();
-  const paged = usePagination(products, 10);
+  const paged = usePagination(stores, 10);
 
   function openNew() {
     setEditing(null);
     setOpen(true);
   }
-  function remove(p: ProductRow) {
-    if (!confirm(t('deleteProductConfirm'))) return;
-    startTransition(() => deleteProduct(p.id));
+  function remove(s: StoreRow) {
+    if (!confirm(t('deleteStoreConfirm'))) return;
+    startTransition(() => deleteStore(s.id));
   }
 
   return (
@@ -47,16 +39,16 @@ export function ProductsManager({
       <div className="flex justify-end">
         <Button size="sm" onClick={openNew}>
           <Plus className="size-4" />
-          {t('newProduct')}
+          {t('newStore')}
         </Button>
       </div>
 
-      {products.length === 0 ? (
+      {stores.length === 0 ? (
         <Card>
           <EmptyState
-            title={t('empty.title')}
-            description={t('empty.description')}
-            actionLabel={t('newProduct')}
+            title={t('storesEmpty.title')}
+            description={t('storesEmpty.description')}
+            actionLabel={t('newStore')}
             onAction={openNew}
           />
         </Card>
@@ -66,38 +58,16 @@ export function ProductsManager({
             <thead>
               <tr>
                 <Th>{t('fields.name')}</Th>
-                <Th>{t('fields.category')}</Th>
                 <Th align="right">
                   <span className="sr-only">{t('actions.edit')}</span>
                 </Th>
               </tr>
             </thead>
             <tbody>
-              {paged.pageItems.map((p) => (
-                <Tr key={p.id}>
+              {paged.pageItems.map((s) => (
+                <Tr key={s.id}>
                   <Td>
-                    <div className="flex flex-col">
-                      <span className="flex items-center gap-2 font-medium">
-                        <Link href={`/products/${p.id}`} className="text-ink hover:underline">
-                          {p.name}
-                        </Link>
-                        {p.isStaple && <Pill>{t('staple')}</Pill>}
-                        {p.isRecurring && (
-                          <Pill>{t('recurring.badge', { day: p.recurringDay ?? 1 })}</Pill>
-                        )}
-                      </span>
-                      <span className="text-caption text-sage">
-                        {t(`units.${p.unit}`)}
-                        {p.typicalDays ? ` · ${t('everyDays', { count: p.typicalDays })}` : ''}
-                      </span>
-                    </div>
-                  </Td>
-                  <Td>
-                    {p.defaultCategoryName ? (
-                      <Pill>{p.defaultCategoryName}</Pill>
-                    ) : (
-                      <span className="text-caption text-sage">—</span>
-                    )}
+                    <span className="text-ink font-medium">{s.name}</span>
                   </Td>
                   <Td align="right">
                     <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
@@ -105,7 +75,7 @@ export function ProductsManager({
                         size="sm"
                         variant="ghost"
                         onClick={() => {
-                          setEditing(p);
+                          setEditing(s);
                           setOpen(true);
                         }}
                         aria-label={t('actions.edit')}
@@ -115,9 +85,9 @@ export function ProductsManager({
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => remove(p)}
+                        onClick={() => remove(s)}
                         disabled={isPending}
-                        aria-label={t('actions.delete')}
+                        aria-label={t('deleteStore')}
                       >
                         <Trash2 className="size-4" />
                       </Button>
@@ -131,11 +101,10 @@ export function ProductsManager({
         </Card>
       )}
 
-      <ProductFormDialog
+      <StoreFormDialog
         open={open}
         onOpenChange={setOpen}
-        product={editing}
-        categories={categories}
+        store={editing}
         onSaved={() => setOpen(false)}
       />
     </>

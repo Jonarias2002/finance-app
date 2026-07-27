@@ -91,6 +91,7 @@ export async function saveGoal(_prev: ActionState, formData: FormData): Promise<
 
   revalidatePath('/goals');
   revalidatePath('/accounts');
+  revalidatePath('/manage');
   revalidatePath('/');
   return { ok: true };
 }
@@ -104,6 +105,7 @@ export async function deleteGoal(id: string) {
   await supabase.from('savings_goals').delete().eq('id', id).eq('user_id', user.id);
   revalidatePath('/goals');
   revalidatePath('/accounts');
+  revalidatePath('/manage');
   revalidatePath('/');
 }
 
@@ -120,6 +122,7 @@ export async function setGoalAchieved(id: string, achieved: boolean) {
     .eq('user_id', user.id);
   revalidatePath('/goals');
   revalidatePath('/accounts');
+  revalidatePath('/manage');
   revalidatePath('/');
 }
 
@@ -172,6 +175,7 @@ export async function addContribution(
   await syncAchieved(supabase, user.id, goalId);
   revalidatePath('/goals');
   revalidatePath('/accounts');
+  revalidatePath('/manage');
   revalidatePath('/');
   return { ok: true };
 }
@@ -195,5 +199,6 @@ export async function deleteContribution(id: string) {
   await syncAchieved(supabase, user.id, contribution.goal_id as string);
   revalidatePath('/goals');
   revalidatePath('/accounts');
+  revalidatePath('/manage');
   revalidatePath('/');
 }

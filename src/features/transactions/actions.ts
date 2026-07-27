@@ -134,6 +134,7 @@ export async function saveTransaction(
 
   revalidatePath('/transactions');
   revalidatePath('/accounts');
+  revalidatePath('/manage');
   revalidatePath('/');
   return { ok: true };
 }
@@ -203,6 +204,7 @@ async function saveTransfer(
 
   revalidatePath('/transactions');
   revalidatePath('/accounts');
+  revalidatePath('/manage');
   revalidatePath('/');
   return { ok: true };
 }
@@ -218,5 +220,6 @@ export async function deleteTransaction(id: string) {
 
   revalidatePath('/transactions');
   revalidatePath('/accounts');
+  revalidatePath('/manage');
   revalidatePath('/');
 }

@@ -58,6 +58,7 @@ export async function saveAccount(_prev: ActionState, formData: FormData): Promi
   }
 
   revalidatePath('/accounts');
+  revalidatePath('/manage');
   return { ok: true };
 }
 
@@ -76,4 +77,5 @@ export async function setAccountArchived(id: string, archived: boolean) {
     .eq('user_id', user.id);
 
   revalidatePath('/accounts');
+  revalidatePath('/manage');
 }

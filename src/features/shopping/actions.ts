@@ -371,6 +371,7 @@ export async function closePurchase(_prev: ActionState, formData: FormData): Pro
   revalidatePath(`/shopping/${listId}`);
   revalidatePath('/transactions');
   revalidatePath('/accounts');
+  revalidatePath('/manage');
   revalidatePath('/');
   return { ok: true };
 }

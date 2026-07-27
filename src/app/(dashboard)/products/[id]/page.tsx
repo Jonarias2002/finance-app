@@ -20,7 +20,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     )
     .eq('id', id)
     .maybeSingle();
-  if (!product) redirect('/products');
+  if (!product) redirect('/manage?tab=products');
 
   const { data: prices } = await supabase
     .from('price_records')

@@ -58,7 +58,7 @@ export function UpcomingServices({ items }: { items: ServiceItem[] }) {
 
   return (
     <Card>
-      <PanelHeader title={t('upcomingTitle')} href="/products" seeAll={t('seeAll')} />
+      <PanelHeader title={t('upcomingTitle')} href="/manage?tab=products" seeAll={t('seeAll')} />
       <ul className="divide-line divide-y">
         {items.map((s) => (
           <li key={s.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">

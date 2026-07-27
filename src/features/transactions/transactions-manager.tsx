@@ -128,7 +128,7 @@ export function TransactionsManager({
           </Button>
         ) : (
           <Link
-            href="/accounts"
+            href="/manage?tab=accounts"
             className="rounded-control border-line text-ink hover:bg-surface-2 text-caption inline-flex h-9 items-center gap-2 border px-3 font-medium transition-colors"
           >
             {t('needAccount.action')}

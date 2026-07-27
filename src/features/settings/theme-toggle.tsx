@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
-import { Monitor, Sun, Moon } from 'lucide-react';
 import type { Theme } from '@/lib/theme';
 import { setTheme } from './actions';
 import { Segmented } from './segmented';
@@ -35,10 +34,12 @@ export function ThemeToggle({ initial }: { initial: Theme }) {
     startTransition(() => setTheme(next));
   }
 
+  // Sin icono: tres segmentos con icono + etiqueta no caben en el ancho del
+  // menú del avatar. Solo texto, igual que el selector de idioma.
   const options = [
-    { value: 'system' as const, label: t('system'), icon: Monitor },
-    { value: 'light' as const, label: t('light'), icon: Sun },
-    { value: 'dark' as const, label: t('dark'), icon: Moon },
+    { value: 'system' as const, label: t('system') },
+    { value: 'light' as const, label: t('light') },
+    { value: 'dark' as const, label: t('dark') },
   ];
 
   return <Segmented value={value} options={options} onChange={select} ariaLabel={t('label')} />;

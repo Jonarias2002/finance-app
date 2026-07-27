@@ -10,10 +10,12 @@
     "debts": "Deudas",
     "goals": "Metas",
     "shopping": "Compras",
+    "manage": "Gestión",
     "accounts": "Cuentas",
     "categories": "Categorías",
     "products": "Productos",
-    "settings": "Ajustes",
+    "stores": "Tiendas",
+    "account": "Cuenta",
     "newTransaction": "Registrar movimiento",
     "logout": "Cerrar sesión"
   },
@@ -104,10 +106,6 @@
     }
   },
   "settings": {
-    "appearance": {
-      "title": "Apariencia",
-      "description": "Elige cómo se ve FinWise en este dispositivo."
-    },
     "theme": {
       "label": "Tema",
       "system": "Sistema",
@@ -115,9 +113,7 @@
       "dark": "Oscuro"
     },
     "language": {
-      "label": "Idioma",
-      "title": "Idioma",
-      "description": "El idioma en el que ves la aplicación."
+      "label": "Idioma"
     }
   },
   "accounts": {

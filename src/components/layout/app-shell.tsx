@@ -8,16 +8,13 @@ import {
   ArrowLeftRight,
   HandCoins,
   Target,
-  Wallet,
-  Tags,
+  SlidersHorizontal,
   ShoppingCart,
-  Package,
-  Settings,
-  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { RateStamp } from '@/components/ui/rate-stamp';
-import { logout } from '@/features/auth/actions';
+import { UserMenu } from '@/components/layout/user-menu';
+import type { Theme } from '@/lib/theme';
+import type { Locale } from '@/i18n/request';
 
 /** Rutas en inglés (convención del proyecto); las etiquetas se traducen. */
 const NAV = [
@@ -25,29 +22,33 @@ const NAV = [
   { href: '/transactions', key: 'transactions', icon: ArrowLeftRight, mobile: true },
   { href: '/debts', key: 'debts', icon: HandCoins, mobile: true },
   { href: '/goals', key: 'goals', icon: Target, mobile: true },
-  { href: '/accounts', key: 'accounts', icon: Wallet, mobile: false },
-  { href: '/categories', key: 'categories', icon: Tags, mobile: false },
-  { href: '/products', key: 'products', icon: Package, mobile: false },
-  { href: '/settings', key: 'settings', icon: Settings, mobile: true },
+  { href: '/manage', key: 'manage', icon: SlidersHorizontal, mobile: true },
 ] as const;
 
-/** Compras no va en la navegación: vive en un botón flotante (FAB). Aquí solo
- *  para resolver el encabezado de la sección cuando la ruta es /shopping. */
-const SHOPPING = { href: '/shopping', key: 'shopping' } as const;
+/** Rutas sin item propio en la navegación, solo para resolver el encabezado:
+ *  Compras vive en un FAB; las páginas de detalle de producto pertenecen a Gestión;
+ *  las rutas viejas de cuentas/categorías redirigen a /manage. */
+const EXTRA = [
+  { href: '/shopping', key: 'shopping' },
+  { href: '/products', key: 'manage' },
+  { href: '/accounts', key: 'manage' },
+  { href: '/categories', key: 'manage' },
+] as const;
+const SHOPPING = EXTRA[0];
 
 type AppShellProps = {
   /** Si se omite, el título es la etiqueta de la sección activa. */
   title?: string;
   cycleLabel?: string;
-  rate: { value: number; source: 'BCV' | 'Paralelo'; date: Date | string; stale?: boolean };
+  user: { email: string; theme: Theme; locale: Locale; isAdmin: boolean };
   children: React.ReactNode;
 };
 
-export function AppShell({ title, cycleLabel, rate, children }: AppShellProps) {
+export function AppShell({ title, cycleLabel, user, children }: AppShellProps) {
   const pathname = usePathname();
   const t = useTranslations('nav');
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
-  const activeKey = [...NAV, SHOPPING].find((n) => isActive(n.href))?.key ?? 'home';
+  const activeKey = [...NAV, ...EXTRA].find((n) => isActive(n.href))?.key ?? 'home';
   const heading = title ?? t(activeKey);
 
   return (
@@ -79,16 +80,6 @@ export function AppShell({ title, cycleLabel, rate, children }: AppShellProps) {
             </li>
           ))}
         </ul>
-
-        <form action={logout}>
-          <button
-            type="submit"
-            className="rounded-control text-body text-sage hover:bg-surface-2 hover:text-ink flex h-11 w-full items-center gap-3 px-3 transition-colors"
-          >
-            <LogOut className="size-[18px] shrink-0" aria-hidden />
-            {t('logout')}
-          </button>
-        </form>
       </nav>
 
       {/* Barra superior */}
@@ -103,7 +94,12 @@ export function AppShell({ title, cycleLabel, rate, children }: AppShellProps) {
             </span>
           )}
         </div>
-        <RateStamp rate={rate.value} source={rate.source} date={rate.date} stale={rate.stale} />
+        <UserMenu
+          email={user.email}
+          theme={user.theme}
+          locale={user.locale}
+          isAdmin={user.isAdmin}
+        />
       </header>
 
       <main className="mx-auto flex max-w-[1120px] flex-col gap-6 px-4 pt-20 pb-24 md:px-8 lg:pl-64">

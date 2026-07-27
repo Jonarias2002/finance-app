@@ -28,7 +28,7 @@ export function Segmented<T extends string>({
     <div
       role="radiogroup"
       aria-label={ariaLabel}
-      className="rounded-control border-line bg-surface-2 inline-flex gap-1 border p-1"
+      className="rounded-control border-line bg-surface-2 flex w-full gap-1 border p-1"
     >
       {options.map(({ value: optionValue, label, icon: Icon }) => {
         const active = optionValue === value;
@@ -40,13 +40,15 @@ export function Segmented<T extends string>({
             aria-checked={active}
             disabled={disabled}
             onClick={() => onChange(optionValue)}
+            // `flex-1` + `min-w-0`: segmentos de igual ancho que nunca desbordan
+            // su contenedor, por estrecho que sea (p. ej. el menú del avatar).
             className={cn(
-              'text-caption flex items-center gap-2 rounded-[6px] px-3 py-1.5 font-medium transition-colors disabled:pointer-events-none disabled:opacity-60',
+              'text-caption flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[6px] px-2 py-1.5 font-medium transition-colors disabled:pointer-events-none disabled:opacity-60',
               active ? 'bg-surface text-ink shadow-sm' : 'text-sage hover:text-ink',
             )}
           >
-            {Icon && <Icon className="size-4" />}
-            {label}
+            {Icon && <Icon className="size-4 shrink-0" />}
+            <span className="truncate">{label}</span>
           </button>
         );
       })}

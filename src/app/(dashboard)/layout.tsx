@@ -1,26 +1,40 @@
+import { cookies } from 'next/headers';
+import { getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { AppShell } from '@/components/layout/app-shell';
+import { DEFAULT_THEME, THEME_COOKIE, THEMES, type Theme } from '@/lib/theme';
+import type { Locale } from '@/i18n/request';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Tasa del día para el sello de la barra superior. Aún no hay sincronización
-  // (§12), así que si no hay filas se muestra como desactualizada.
-  const { data } = await supabase
-    .from('exchange_rates')
-    .select('rate, source, rate_date')
-    .order('rate_date', { ascending: false })
-    .limit(1)
+  const { data: adminRole } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user?.id ?? '')
+    .eq('role', 'admin')
     .maybeSingle();
 
-  const rate = data
-    ? {
-        value: Number(data.rate),
-        source: data.source === 'parallel' ? ('Paralelo' as const) : ('BCV' as const),
-        date: data.rate_date as string,
-        stale: false,
-      }
-    : { value: 0, source: 'BCV' as const, date: new Date(), stale: true };
+  const store = await cookies();
+  const cookieTheme = store.get(THEME_COOKIE)?.value;
+  const theme: Theme = THEMES.includes(cookieTheme as Theme)
+    ? (cookieTheme as Theme)
+    : DEFAULT_THEME;
+  const locale = (await getLocale()) as Locale;
 
-  return <AppShell rate={rate}>{children}</AppShell>;
+  return (
+    <AppShell
+      user={{
+        email: user?.email ?? '',
+        theme,
+        locale,
+        isAdmin: Boolean(adminRole),
+      }}
+    >
+      {children}
+    </AppShell>
+  );
 }

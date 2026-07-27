@@ -49,6 +49,7 @@ export async function saveCategory(_prev: ActionState, formData: FormData): Prom
   }
 
   revalidatePath('/categories');
+  revalidatePath('/manage');
   return { ok: true };
 }
 
@@ -68,4 +69,5 @@ export async function deleteCategory(id: string) {
     .eq('is_system', false);
 
   revalidatePath('/categories');
+  revalidatePath('/manage');
 }

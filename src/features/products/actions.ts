@@ -63,6 +63,7 @@ export async function saveProduct(_prev: ActionState, formData: FormData): Promi
   }
 
   revalidatePath('/products');
+  revalidatePath('/manage');
   return { ok: true };
 }
 
@@ -74,6 +75,7 @@ export async function deleteProduct(id: string) {
   if (!user) return;
   await supabase.from('products').delete().eq('id', id).eq('user_id', user.id);
   revalidatePath('/products');
+  revalidatePath('/manage');
 }
 
 export async function saveStore(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -101,6 +103,7 @@ export async function saveStore(_prev: ActionState, formData: FormData): Promise
   }
 
   revalidatePath('/products');
+  revalidatePath('/manage');
   revalidatePath('/shopping');
   return { ok: true };
 }
@@ -113,5 +116,6 @@ export async function deleteStore(id: string) {
   if (!user) return;
   await supabase.from('stores').delete().eq('id', id).eq('user_id', user.id);
   revalidatePath('/products');
+  revalidatePath('/manage');
   revalidatePath('/shopping');
 }
