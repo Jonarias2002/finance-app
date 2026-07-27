@@ -10,6 +10,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
+    "db:apply": "node scripts/apply-migrations.mjs",
     "prepare": "husky"
   },
   "lint-staged": {
