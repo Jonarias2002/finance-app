@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { setLocale } from '@/i18n/locale';
 import type { Locale } from '@/i18n/request';
-import { Segmented } from './segmented';
+import { Segmented, type SegmentedShape } from '@/components/ui';
 
-export function LanguageToggle({ initial }: { initial: Locale }) {
+export function LanguageToggle({ initial, shape }: { initial: Locale; shape?: SegmentedShape }) {
   const t = useTranslations('settings.language');
   const router = useRouter();
   const [value, setValue] = useState<Locale>(initial);
@@ -36,6 +36,7 @@ export function LanguageToggle({ initial }: { initial: Locale }) {
       onChange={select}
       ariaLabel={t('label')}
       disabled={isPending}
+      shape={shape}
     />
   );
 }

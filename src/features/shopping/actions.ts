@@ -330,6 +330,8 @@ export async function closePurchase(_prev: ActionState, formData: FormData): Pro
       user_id: user.id,
       account_id: accountId,
       category_id: categoryId,
+      // El carrito ya sabe dónde se compró: el gasto hereda esa tienda.
+      store_id: (list.store_id as string | null) ?? null,
       type: 'expense',
       amount,
       currency,

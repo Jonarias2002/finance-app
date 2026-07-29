@@ -73,9 +73,7 @@ export function DebtDetail({ debt, rate, today }: Props) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-section text-ink truncate font-[family-name:var(--font-bricolage)]">
-                {debt.counterparty}
-              </h2>
+              <h2 className="text-section text-ink font-display truncate">{debt.counterparty}</h2>
               <Pill>{t(`groups.${debt.direction}`)}</Pill>
             </div>
             {debt.description && <Caption className="line-clamp-2">{debt.description}</Caption>}

@@ -8,6 +8,7 @@ import {
   Card,
   EmptyState,
   Button,
+  buttonClass,
   Pill,
   Figure,
   Tabs,
@@ -22,7 +23,14 @@ import {
 import { formatMoney, formatDayMonth } from '@/lib/format';
 import { deleteTransaction } from './actions';
 import { TransactionFormDialog } from './transaction-form-dialog';
-import type { AccountOption, CategoryOption, ProductOption, TxnRow, TxnType } from './schemas';
+import type {
+  AccountOption,
+  CategoryOption,
+  ProductOption,
+  StoreOption,
+  TxnRow,
+  TxnType,
+} from './schemas';
 import type { RatePoint } from '@/features/exchange-rates/rate-history';
 
 type Filter = 'all' | TxnType;
@@ -32,6 +40,7 @@ type Props = {
   accounts: AccountOption[];
   categories: CategoryOption[];
   products: ProductOption[];
+  stores: StoreOption[];
   rateHistory: RatePoint[];
   today: string;
 };
@@ -41,6 +50,7 @@ export function TransactionsManager({
   accounts,
   categories,
   products,
+  stores,
   rateHistory,
   today,
 }: Props) {
@@ -115,21 +125,39 @@ export function TransactionsManager({
 
   return (
     <>
-      <div className="flex items-end justify-between gap-4">
+      {/* En móvil la acción va arriba y a todo el ancho: las tres pestañas ya no
+          dejan sitio para el botón en la misma fila. `flex-col-reverse` invierte
+          solo la presentación — el orden del DOM (y por tanto el del foco) se
+          mantiene igual que en escritorio, donde vuelve a ser fila. */}
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         {transactions.length > 0 ? (
-          <Tabs value={tab} tabs={filterTabs} onChange={changeTab} ariaLabel={t('fields.type')} />
+          <Tabs
+            value={tab}
+            tabs={filterTabs}
+            onChange={changeTab}
+            ariaLabel={t('fields.type')}
+            // Centradas mientras ocupan el ancho completo; al volver a la fila
+            // en `sm` el tablist se ajusta al contenido y vuelven a la izquierda.
+            className="justify-center sm:justify-start"
+          />
         ) : (
-          <span />
+          // Relleno para que `justify-between` empuje la acción a la derecha en
+          // escritorio; en móvil no existe y así no deja un hueco vacío.
+          <span className="hidden sm:block" />
         )}
         {canCreate ? (
-          <Button size="sm" onClick={openNew}>
+          <Button size="touch" onClick={openNew} className="w-full sm:w-auto">
             <Plus className="size-4" />
             {t('new')}
           </Button>
         ) : (
           <Link
             href="/manage?tab=accounts"
-            className="rounded-control border-line text-ink hover:bg-surface-2 text-caption inline-flex h-9 items-center gap-2 border px-3 font-medium transition-colors"
+            className={buttonClass({
+              variant: 'secondary',
+              size: 'touch',
+              className: 'w-full sm:w-auto',
+            })}
           >
             {t('needAccount.action')}
           </Link>
@@ -190,11 +218,16 @@ export function TransactionsManager({
           <Table>
             <thead>
               <tr>
-                <Th>{t('fields.date')}</Th>
-                <Th>{t('fields.description')}</Th>
-                <Th>{t('fields.category')}</Th>
-                <Th>{t('fields.account')}</Th>
-                <Th align="right">{t('fields.amount')}</Th>
+                {/* Con solo tres columnas visibles, en móvil se centran para
+                    repartir el ancho; en `md`, cuando vuelven categoría y
+                    cuenta, recuperan la alineación de lectura. */}
+                <Th className="text-center md:text-left">{t('fields.date')}</Th>
+                <Th className="text-center md:text-left">{t('fields.description')}</Th>
+                {/* Categoría y cuenta son contexto, no el dato: en móvil el ancho
+                    se lo llevan fecha, descripción y monto. Reaparecen en md. */}
+                <Th className="hidden md:table-cell">{t('fields.category')}</Th>
+                <Th className="hidden md:table-cell">{t('fields.account')}</Th>
+                <Th className="text-center md:text-right">{t('fields.amount')}</Th>
                 <Th align="right">
                   <span className="sr-only">{t('actions.edit')}</span>
                 </Th>
@@ -203,26 +236,32 @@ export function TransactionsManager({
             <tbody>
               {ledger.pageItems.map((txn) => (
                 <Tr key={txn.id}>
-                  <Td>
+                  <Td className="text-center md:text-left">
                     <span className="tabular text-sage text-caption">
                       {formatDayMonth(txn.occurredAt)}
                     </span>
                   </Td>
-                  <Td>
+                  <Td className="text-center md:text-left">
                     <span className="text-ink">{txn.description}</span>
+                    {/* La tienda matiza la compra, así que va bajo la descripción
+                        y no en columna propia. Oculta en móvil, como el resto del
+                        contexto. */}
+                    {txn.storeName && (
+                      <span className="text-label text-sage hidden md:block">{txn.storeName}</span>
+                    )}
                   </Td>
-                  <Td>
+                  <Td className="hidden md:table-cell">
                     {txn.categoryName ? (
                       <Pill>{txn.categoryName}</Pill>
                     ) : (
                       <span className="text-caption text-sage">—</span>
                     )}
                   </Td>
-                  <Td>
+                  <Td className="hidden md:table-cell">
                     <span className="text-caption text-sage">{txn.accountName}</span>
                   </Td>
-                  <Td align="right">
-                    <div className="flex flex-col items-end">
+                  <Td className="text-center md:text-right">
+                    <div className="flex flex-col items-center md:items-end">
                       {txn.type === 'transfer' ? (
                         <Figure
                           amount={txn.amount}
@@ -287,6 +326,7 @@ export function TransactionsManager({
           accounts={accounts}
           categories={categories}
           products={products}
+          stores={stores}
           rateHistory={rateHistory}
           defaultDate={today}
           defaultType={defaultType}

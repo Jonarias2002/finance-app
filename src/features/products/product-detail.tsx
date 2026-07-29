@@ -49,7 +49,7 @@ export function ProductDetail({
 
       <Card className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <h2 className="text-section text-ink font-[family-name:var(--font-bricolage)]">{name}</h2>
+          <h2 className="text-section text-ink font-display">{name}</h2>
           {isStaple && <Pill>{t('staple')}</Pill>}
         </div>
         <Caption>

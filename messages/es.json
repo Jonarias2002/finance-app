@@ -46,20 +46,110 @@
   "auth": {
     "loginTitle": "Inicia sesión",
     "signupTitle": "Crea tu cuenta",
+    "loginLead": "Accede a tu panel y retoma donde lo dejaste.",
+    "signupLead": "Crea tu cuenta y empieza a ordenar tus finanzas.",
     "subtitle": "Lleva el control de tu dinero en un solo lugar.",
+    "tagline": "Claridad sobre tu dinero, <accent>todos los días.</accent>",
+    "lead": "Cuentas, metas y deudas en una sola vista, con la tasa del día siempre a mano.",
+    "highlights": {
+      "accounts": {
+        "title": "Cuentas y saldos siempre al día.",
+        "description": "Saldo disponible y reservado, en bolívares y en dólares."
+      },
+      "goalsDebts": {
+        "title": "Metas y deudas con progreso real.",
+        "description": "Cuánto llevas y cuánto falta, sin llevar cuentas aparte."
+      },
+      "rate": {
+        "title": "Tasa del día, BCV y paralelo.",
+        "description": "Cada movimiento se convierte con la tasa que elijas."
+      }
+    },
+    "modeLabel": "Tipo de acceso",
     "email": "Correo",
+    "emailPlaceholder": "ejemplo@correo.com",
     "password": "Contraseña",
     "passwordHint": "Mínimo 8 caracteres",
     "submitLogin": "Iniciar sesión",
     "submitSignup": "Crear cuenta",
-    "toSignup": "¿No tienes cuenta? Crear una",
-    "toLogin": "¿Ya tienes cuenta? Inicia sesión",
+    "pendingLogin": "Iniciando sesión…",
+    "pendingSignup": "Creando cuenta…",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
     "errors": {
       "invalidEmail": "Escribe un correo válido.",
       "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
       "invalidCredentials": "Correo o contraseña incorrectos.",
       "emailTaken": "Ese correo ya está registrado.",
       "generic": "No se pudo completar la acción. Intenta de nuevo."
+    }
+  },
+  "tutorial": {
+    "open": "Cómo funciona la app",
+    "title": "Guía rápida",
+    "indexLead": "Elige un módulo para ver qué hace, qué te pide el formulario y dónde reaparece después lo que creas.",
+    "lead": "Qué es, qué te pide el formulario y dónde lo usas después.",
+    "back": "Volver al índice",
+    "sections": {
+      "what": "Qué es",
+      "form": "El formulario",
+      "where": "Dónde lo usas después"
+    },
+    "modules": {
+      "home": {
+        "hook": "El resumen de todo: saldo, ingresos, gastos y lo que viene.",
+        "what": "El panel de resumen. Arriba la tasa del día y cuatro cifras: Disponible (tu saldo real ahora, sumando todas las cuentas), Ingresos y Gastos del periodo que elijas, y Neto, que es ingresos menos gastos de ese periodo.",
+        "form": "No tiene formulario. El filtro de periodo (semana, mes, 3 o 6 meses) solo cambia las tres cifras del periodo: Disponible es siempre el saldo de hoy, no depende del filtro.",
+        "where": "Aquí aterriza lo que registras en los demás módulos: los productos recurrentes en «Próximos gastos fijos», las metas y deudas con su barra de progreso, los gastos repartidos por categoría y los avisos cuando gastas más de lo que ingresas o se te vence una deuda."
+      },
+      "accounts": {
+        "hook": "Dónde está tu dinero: banco, efectivo, divisas.",
+        "what": "Cada cuenta es un sitio donde guardas dinero, con su moneda. Su saldo no se escribe a mano: sale de los movimientos, y se muestra en tres partes — total, reservado (lo comprometido en metas) y disponible.",
+        "form": "Nombre, tipo, banco y moneda. La moneda no es un detalle: define en qué moneda se registran los movimientos de esa cuenta y no se puede mezclar dentro de una misma cuenta.",
+        "where": "Es lo primero que hay que crear: sin una cuenta no puedes registrar movimientos, cerrar una compra ni aportar a una meta. Su saldo alimenta el Disponible del inicio."
+      },
+      "transactions": {
+        "hook": "El libro: cada ingreso y cada gasto.",
+        "what": "El registro de todo lo que entra y sale. Cada movimiento guarda la tasa del día en que ocurrió, así lo viejo no cambia de valor cuando se mueve el dólar.",
+        "form": "Tipo (ingreso o gasto), monto, categoría, tienda si fue una compra, la cuenta con la que pagaste, una descripción y la fecha. Si la cuenta es en bolívares puedes corregir la tasa a mano; si la dejas vacía usa la de la fecha elegida.",
+        "where": "Alimenta las cifras de Ingresos, Gastos y Neto del inicio, el gráfico de gastos por categoría y el saldo de la cuenta que usaste."
+      },
+      "categories": {
+        "hook": "Para saber en qué se te va el dinero.",
+        "what": "Etiquetas de ingreso o de gasto. Cada una sirve solo para su tipo: una categoría de gasto no aparece cuando registras un ingreso.",
+        "form": "Nombre y tipo. Nada más — la idea es tener pocas y claras.",
+        "where": "Al registrar un movimiento, en el gráfico «Gastos por categoría» del inicio, y como categoría por defecto de un producto: eso es lo que permite que un carrito cerrado se clasifique solo."
+      },
+      "products": {
+        "hook": "Tu catálogo: lo que compras y lo que pagas cada mes.",
+        "what": "Las cosas que compras a menudo. Sirven para dos cosas distintas: armar el carrito del supermercado y llevar el precio histórico de cada una.",
+        "form": "Nombre, unidad y categoría por defecto. Marcarlo como básico dice «de esto siempre compro», y «cada cuántos días» es lo que le permite a la app saber cuándo toca reponerlo. Si en cambio es un servicio que pagas todos los meses (luz, internet), marca la recurrencia y su día.",
+        "where": "En el carrito: al elegirlo te propone su último precio, y el botón «Agregar lo que hace falta» trae los básicos que ya toca reponer. Los recurrentes salen en «Próximos gastos fijos» del inicio. Y su ficha tiene el gráfico de cómo ha cambiado el precio."
+      },
+      "stores": {
+        "hook": "Dónde compras, para poder comparar precios.",
+        "what": "El listado de supermercados y comercios donde compras.",
+        "form": "Solo el nombre.",
+        "where": "Al crear un carrito, al registrar un gasto y en el historial de precios: como cada precio queda guardado con su tienda, con el tiempo puedes ver dónde te sale más barato cada producto."
+      },
+      "shopping": {
+        "hook": "El carrito con presupuesto, para llevar al supermercado.",
+        "what": "Una lista de compra con presupuesto que usas dentro de la tienda: vas marcando lo que echas al carro y anotando el precio real, y la barra te avisa si te estás pasando.",
+        "form": "Al crear el carrito: nombre, tienda y presupuesto. Dentro, cada ítem puede ser un producto de tu catálogo (que trae su último precio como estimado, en gris, para que lo corrijas) o un nombre suelto.",
+        "where": "Al cerrar la compra se convierte en un gasto real: un solo movimiento con el total, la cuenta con la que pagaste y la categoría que más pese entre los productos. Además guarda el precio de cada producto, que es lo que alimenta los estimados de la próxima vez."
+      },
+      "debts": {
+        "hook": "Lo que debes y lo que te deben, con abonos.",
+        "what": "Deudas en las dos direcciones. Cada abono parcial descuenta del saldo pendiente hasta saldarla.",
+        "form": "Con quién es, cuánto, en qué moneda, si la debes tú o te la deben, y la fecha de vencimiento si la hay.",
+        "where": "En el inicio, con su barra de pagado sobre el total, y como aviso cuando una deuda tuya se pasa de fecha. Ojo: registrar la deuda o un abono no mueve el saldo de ninguna cuenta — si el dinero salió de una cuenta, regístralo además como movimiento."
+      },
+      "goals": {
+        "hook": "Ahorrar para algo sin sacarlo de la cuenta.",
+        "what": "Una meta reserva dinero dentro de una cuenta. Lo reservado no se va de tu patrimonio, pero deja de contar como disponible, para que no te lo gastes sin darte cuenta.",
+        "form": "Nombre, la cuenta donde se reserva, el monto objetivo, la moneda y una fecha objetivo si quieres.",
+        "where": "En el inicio con su barra de progreso, y en el saldo de la cuenta: cada aporte baja el Disponible aunque el total de la cuenta siga igual."
+      }
     }
   },
   "dashboard": {
@@ -220,6 +310,7 @@
       "to": "Destino",
       "category": "Categoría",
       "product": "Producto",
+      "store": "Tienda",
       "description": "Descripción",
       "date": "Fecha",
       "amount": "Monto",
@@ -227,6 +318,8 @@
     },
     "pickProduct": "Elegir un producto…",
     "productHint": "Autocompleta la descripción con un producto de esta categoría.",
+    "noStore": "Sin tienda",
+    "storeHint": "Dónde se hizo la compra. Opcional.",
     "rateHint": "Bolívares por 1 USD. Déjalo vacío para usar la tasa de la fecha elegida.",
     "rateAuto": "Usar tasa del día",
     "noCategory": "Sin categoría",
@@ -499,12 +592,14 @@
     "backToLists": "Carritos",
     "addItem": "Agregar ítem",
     "addMissing": "Agregar lo que hace falta",
+    "addMissingHint": "Agrega tus productos marcados como básicos que nunca has comprado o que ya cumplieron sus días de reposición.",
     "add": "Agregar",
     "overBudget": "Te pasas del presupuesto por {amount}.",
     "completedNote": "Compra cerrada y registrada como movimiento.",
     "viewTransaction": "Ver movimiento",
     "noItems": "Agrega ítems a tu carrito.",
     "actualPrice": "Precio",
+    "estimateHint": "Precio estimado de la última compra. Escribe encima el precio real.",
     "deleteItem": "Eliminar ítem",
     "closePurchase": "Cerrar compra",
     "closeSummary": "Se registrará un gasto de {amount} y se guardarán los precios.",

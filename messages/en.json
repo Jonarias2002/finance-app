@@ -46,20 +46,110 @@
   "auth": {
     "loginTitle": "Sign in",
     "signupTitle": "Create your account",
+    "loginLead": "Get to your dashboard and pick up where you left off.",
+    "signupLead": "Create your account and start putting your finances in order.",
     "subtitle": "Keep track of your money in one place.",
+    "tagline": "Clarity on your money, <accent>every day.</accent>",
+    "lead": "Accounts, goals and debts in a single view, with the daily rate always at hand.",
+    "highlights": {
+      "accounts": {
+        "title": "Accounts and balances always up to date.",
+        "description": "Available and reserved balance, in bolívars and in dollars."
+      },
+      "goalsDebts": {
+        "title": "Goals and debts with real progress.",
+        "description": "How far you've come and what's left, with no side spreadsheets."
+      },
+      "rate": {
+        "title": "Daily rate, BCV and parallel.",
+        "description": "Every entry converts with the rate you choose."
+      }
+    },
+    "modeLabel": "Access type",
     "email": "Email",
+    "emailPlaceholder": "you@example.com",
     "password": "Password",
     "passwordHint": "At least 8 characters",
     "submitLogin": "Sign in",
     "submitSignup": "Create account",
-    "toSignup": "No account? Create one",
-    "toLogin": "Already have an account? Sign in",
+    "pendingLogin": "Signing in…",
+    "pendingSignup": "Creating account…",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "errors": {
       "invalidEmail": "Enter a valid email.",
       "passwordTooShort": "Password must be at least 8 characters.",
       "invalidCredentials": "Wrong email or password.",
       "emailTaken": "That email is already registered.",
       "generic": "Could not complete the action. Try again."
+    }
+  },
+  "tutorial": {
+    "open": "How the app works",
+    "title": "Quick guide",
+    "indexLead": "Pick a module to see what it does, what the form asks for, and where what you create shows up later.",
+    "lead": "What it is, what the form asks for, and where you use it later.",
+    "back": "Back to index",
+    "sections": {
+      "what": "What it is",
+      "form": "The form",
+      "where": "Where you use it later"
+    },
+    "modules": {
+      "home": {
+        "hook": "The summary: balance, income, expenses and what's coming.",
+        "what": "The summary panel. At the top, today's rate and four figures: Available (your real balance right now across every account), Income and Expenses for the period you pick, and Net, which is income minus expenses for that period.",
+        "form": "No form here. The period filter (week, month, 3 or 6 months) only changes the three period figures: Available is always today's balance, regardless of the filter.",
+        "where": "This is where everything you record lands: recurring products under “Upcoming fixed expenses”, goals and debts with their progress bars, expenses split by category, and warnings when you spend more than you earn or a debt goes past due."
+      },
+      "accounts": {
+        "hook": "Where your money sits: bank, cash, foreign currency.",
+        "what": "Each account is a place where you keep money, with its own currency. Its balance is never typed in: it comes from your transactions, and shows in three parts — total, reserved (locked by goals) and available.",
+        "form": "Name, type, bank and currency. The currency is not a detail: it defines the currency every transaction on that account is recorded in, and it can't be mixed within one account.",
+        "where": "This is the first thing to create: without an account you can't record transactions, close a purchase or contribute to a goal. Its balance feeds the Available figure on Home."
+      },
+      "transactions": {
+        "hook": "The ledger: every income and every expense.",
+        "what": "The record of everything coming in and going out. Each entry stores the rate of the day it happened, so past entries don't change value when the dollar moves.",
+        "form": "Type (income or expense), amount, category, store if it was a purchase, the account you paid with, a description and the date. If the account is in bolívars you can override the rate by hand; leave it empty and it uses the rate for the chosen date.",
+        "where": "It feeds the Income, Expenses and Net figures on Home, the expenses-by-category chart, and the balance of the account you used."
+      },
+      "categories": {
+        "hook": "So you can tell where the money goes.",
+        "what": "Income or expense labels. Each one only works for its own type: an expense category never shows up when you record income.",
+        "form": "Name and type. That's it — the point is to keep few and clear ones.",
+        "where": "When recording a transaction, in the “Expenses by category” chart on Home, and as a product's default category: that's what lets a closed cart classify itself."
+      },
+      "products": {
+        "hook": "Your catalogue: what you buy and what you pay monthly.",
+        "what": "The things you buy often. They serve two separate purposes: building your grocery cart, and keeping the price history of each item.",
+        "form": "Name, unit and default category. Marking it as a staple says “I always buy this”, and “every how many days” is what lets the app know when it's due for a restock. If it's instead a service you pay every month (power, internet), set the recurrence and its day.",
+        "where": "In the cart: picking it suggests its last price, and the “Add what's missing” button pulls in the staples that are already due. Recurring ones show up under “Upcoming fixed expenses” on Home. And each product page has a chart of how its price moved."
+      },
+      "stores": {
+        "hook": "Where you shop, so you can compare prices.",
+        "what": "The list of supermarkets and shops where you buy.",
+        "form": "Just the name.",
+        "where": "When creating a cart, when recording an expense, and in the price history: since every price is stored with its store, over time you can see where each product is cheaper."
+      },
+      "shopping": {
+        "hook": "The cart with a budget, to take to the supermarket.",
+        "what": "A shopping list with a budget you use inside the store: tick off what goes into the cart and type the real price, and the bar warns you when you're going over.",
+        "form": "When creating the cart: name, store and budget. Inside, each item can be a product from your catalogue (which brings its last price as an estimate, in grey, for you to correct) or a one-off name.",
+        "where": "Closing the purchase turns it into a real expense: a single transaction with the total, the account you paid with, and the heaviest category among the products. It also stores each product's price, which is what feeds next time's estimates."
+      },
+      "debts": {
+        "hook": "What you owe and what you're owed, with part payments.",
+        "what": "Debts in both directions. Each part payment reduces the outstanding balance until it's settled.",
+        "form": "Who it's with, how much, in which currency, whether you owe it or you're owed it, and the due date if there is one.",
+        "where": "On Home, with its paid-over-total bar, and as a warning when a debt of yours goes past due. Note: recording a debt or a payment does not move any account balance — if the money actually left an account, record it as a transaction too."
+      },
+      "goals": {
+        "hook": "Save for something without taking it out of the account.",
+        "what": "A goal reserves money inside an account. What's reserved doesn't leave your net worth, but it stops counting as available, so you don't spend it without noticing.",
+        "form": "Name, the account where it's reserved, the target amount, the currency and a target date if you want one.",
+        "where": "On Home with its progress bar, and in the account balance: every contribution lowers Available even though the account total stays the same."
+      }
     }
   },
   "dashboard": {
@@ -220,6 +310,7 @@
       "to": "To",
       "category": "Category",
       "product": "Product",
+      "store": "Store",
       "description": "Description",
       "date": "Date",
       "amount": "Amount",
@@ -227,6 +318,8 @@
     },
     "pickProduct": "Pick a product…",
     "productHint": "Autofills the description with a product from this category.",
+    "noStore": "No store",
+    "storeHint": "Where the purchase was made. Optional.",
     "rateHint": "Bolívars per 1 USD. Leave empty to use the rate for the selected date.",
     "rateAuto": "Use date's rate",
     "noCategory": "No category",
@@ -499,12 +592,14 @@
     "backToLists": "Carts",
     "addItem": "Add item",
     "addMissing": "Add what's missing",
+    "addMissingHint": "Adds the products you marked as staples that you've never bought or whose restock days are already due.",
     "add": "Add",
     "overBudget": "You're over budget by {amount}.",
     "completedNote": "Purchase closed and recorded as a transaction.",
     "viewTransaction": "View transaction",
     "noItems": "Add items to your cart.",
     "actualPrice": "Price",
+    "estimateHint": "Estimated price from the last purchase. Type over it with the real one.",
     "deleteItem": "Delete item",
     "closePurchase": "Close purchase",
     "closeSummary": "An expense of {amount} will be recorded and prices saved.",

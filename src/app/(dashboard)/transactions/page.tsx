@@ -5,6 +5,7 @@ import type {
   AccountOption,
   CategoryOption,
   ProductOption,
+  StoreOption,
   TxnRow,
   TxnType,
 } from '@/features/transactions/schemas';
@@ -21,13 +22,14 @@ export default async function TransactionsPage() {
 
   // Dos FKs a accounts: hay que desambiguar el embed con el hint de columna.
   const cols =
-    'id, type, account_id, transfer_account_id, category_id, amount, currency, amount_usd, exchange_rate, description, occurred_at, source:accounts!account_id(name), dest:accounts!transfer_account_id(name), categories(name)';
+    'id, type, account_id, transfer_account_id, category_id, store_id, amount, currency, amount_usd, exchange_rate, description, occurred_at, source:accounts!account_id(name), dest:accounts!transfer_account_id(name), categories(name), stores(name)';
 
   const [
     { data: txns },
     { data: accounts },
     { data: categories },
     { data: products },
+    { data: stores },
     rateHistory,
   ] = await Promise.all([
     supabase
@@ -39,6 +41,7 @@ export default async function TransactionsPage() {
     supabase.from('accounts').select('id, name, currency').eq('is_archived', false).order('name'),
     supabase.from('categories').select('id, name, kind').order('name'),
     supabase.from('products').select('id, name, default_category_id').order('name'),
+    supabase.from('stores').select('id, name').order('name'),
     getRateHistory(supabase),
   ]);
 
@@ -47,6 +50,7 @@ export default async function TransactionsPage() {
     const account = one<{ name: string }>(tx.source);
     const transferAccount = one<{ name: string }>(tx.dest);
     const category = one<{ name: string }>(tx.categories);
+    const store = one<{ name: string }>(tx.stores);
     return {
       id: tx.id as string,
       type: tx.type as TxnType,
@@ -56,6 +60,8 @@ export default async function TransactionsPage() {
       transferAccountName: transferAccount?.name ?? null,
       categoryId: (tx.category_id as string | null) ?? null,
       categoryName: category?.name ?? null,
+      storeId: (tx.store_id as string | null) ?? null,
+      storeName: store?.name ?? null,
       amount: Number(tx.amount),
       currency: tx.currency as Currency,
       amountUsd: Number(tx.amount_usd),
@@ -85,6 +91,11 @@ export default async function TransactionsPage() {
     categoryId: (p.default_category_id as string | null) ?? null,
   }));
 
+  const storeOptions: StoreOption[] = (stores ?? []).map((s) => ({
+    id: s.id as string,
+    name: s.name as string,
+  }));
+
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Caracas' }).format(
     new Date(),
   );
@@ -95,6 +106,7 @@ export default async function TransactionsPage() {
       accounts={accountOptions}
       categories={categoryOptions}
       products={productOptions}
+      stores={storeOptions}
       rateHistory={rateHistory}
       today={today}
     />

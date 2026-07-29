@@ -14,7 +14,14 @@ import { cn } from '@/lib/cn';
 import { formatRate, type Currency } from '@/lib/format';
 import { rateOnOrBefore, type RatePoint } from '@/features/exchange-rates/rate-history';
 import { saveTransaction } from './actions';
-import type { AccountOption, CategoryOption, ProductOption, TxnRow, TxnType } from './schemas';
+import type {
+  AccountOption,
+  CategoryOption,
+  ProductOption,
+  StoreOption,
+  TxnRow,
+  TxnType,
+} from './schemas';
 
 type Props = {
   open: boolean;
@@ -23,6 +30,7 @@ type Props = {
   accounts: AccountOption[];
   categories: CategoryOption[];
   products: ProductOption[];
+  stores: StoreOption[];
   rateHistory: RatePoint[];
   defaultDate: string;
   defaultType: TxnType;
@@ -56,6 +64,7 @@ function TransactionForm({
   accounts,
   categories,
   products,
+  stores,
   rateHistory,
   defaultDate,
   defaultType,
@@ -72,6 +81,7 @@ function TransactionForm({
     transaction ? String(transaction.amount).replace('.', ',') : '',
   );
   const [categoryId, setCategoryId] = useState<string>(transaction?.categoryId ?? '');
+  const [storeId, setStoreId] = useState<string>(transaction?.storeId ?? '');
   const [transferId, setTransferId] = useState<string>(transaction?.transferAccountId ?? '');
   const [description, setDescription] = useState<string>(transaction?.description ?? '');
   const [productId, setProductId] = useState<string>('');
@@ -97,6 +107,8 @@ function TransactionForm({
   }, [state, onSaved]);
 
   const isTransfer = type === 'transfer';
+  // La tienda solo tiene sentido en un gasto (la tabla lo exige con un check).
+  const isExpense = type === 'expense';
   const account = accounts.find((a) => a.id === accountId);
   const currency: Currency = account?.currency ?? 'USD';
 
@@ -146,6 +158,7 @@ function TransactionForm({
       ) : (
         <input type="hidden" name="categoryId" value={categoryId} />
       )}
+      <input type="hidden" name="storeId" value={isExpense ? storeId : ''} />
       {/* Solo enviamos tasa cuando es manual; si va vacío, el servidor toma la del día. */}
       <input type="hidden" name="exchangeRate" value={manualRate ?? ''} />
 
@@ -167,6 +180,7 @@ function TransactionForm({
                 setType(v);
                 setCategoryId('');
                 setProductId('');
+                setStoreId('');
               }}
               className={cn(
                 'rounded-control text-caption h-11 border font-medium transition-colors',
@@ -211,24 +225,6 @@ function TransactionForm({
         </Field>
       )}
 
-      {/* 2. Descripción */}
-      <Field
-        label={t('fields.description')}
-        htmlFor="description"
-        required
-        error={err('description')}
-      >
-        <Input
-          id="description"
-          name="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={isTransfer ? t('transferPlaceholder') : t('descriptionPlaceholder')}
-          maxLength={120}
-          required
-        />
-      </Field>
-
       {isTransfer ? (
         <>
           {/* Origen / destino (transferencias heredadas) */}
@@ -257,7 +253,7 @@ function TransactionForm({
         </>
       ) : (
         <>
-          {/* 3. Categoría (+ productos de esa categoría) */}
+          {/* 2. Categoría (+ productos de esa categoría) */}
           <Field label={t('fields.category')} htmlFor="category">
             <Select
               id="category"
@@ -297,6 +293,20 @@ function TransactionForm({
             </Field>
           )}
 
+          {/* 3. Tienda: solo en gastos, y solo si hay tiendas registradas. */}
+          {isExpense && stores.length > 0 && (
+            <Field label={t('fields.store')} htmlFor="store" hint={t('storeHint')}>
+              <Select id="store" value={storeId} onChange={(e) => setStoreId(e.target.value)}>
+                <option value="">{t('noStore')}</option>
+                {stores.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          )}
+
           {/* 4. Cuenta */}
           <Field label={t('fields.account')} htmlFor="account" error={err('accountId')}>
             <Select id="account" value={accountId} onChange={(e) => setAccountId(e.target.value)}>
@@ -310,7 +320,25 @@ function TransactionForm({
         </>
       )}
 
-      {/* 5. Fecha */}
+      {/* 5. Descripción: cierra el bloque, ya con la cuenta elegida. */}
+      <Field
+        label={t('fields.description')}
+        htmlFor="description"
+        required
+        error={err('description')}
+      >
+        <Input
+          id="description"
+          name="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder={isTransfer ? t('transferPlaceholder') : t('descriptionPlaceholder')}
+          maxLength={120}
+          required
+        />
+      </Field>
+
+      {/* 6. Fecha */}
       <Field label={t('fields.date')} htmlFor="occurredAt">
         <Input
           id="occurredAt"

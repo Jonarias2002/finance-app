@@ -72,9 +72,7 @@ export function GoalDetail({ goal, today }: Props) {
       <Card className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-section text-ink truncate font-[family-name:var(--font-bricolage)]">
-              {goal.name}
-            </h2>
+            <h2 className="text-section text-ink font-display truncate">{goal.name}</h2>
             <Caption className="line-clamp-1">
               {goal.accountName}
               {goal.targetDate &&

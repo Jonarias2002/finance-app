@@ -3,8 +3,8 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import type { Theme } from '@/lib/theme';
+import { Segmented } from '@/components/ui';
 import { setTheme } from './actions';
-import { Segmented } from './segmented';
 
 /** Aplica la clase `.dark` en <html> según el tema; refleja el script inline del layout. */
 function applyTheme(theme: Theme) {

@@ -14,6 +14,7 @@ import {
   type DebtItem,
 } from '@/features/dashboard/home-panels';
 import { RangeFilter } from '@/features/dashboard/range-filter';
+import { TutorialDialog } from '@/features/tutorial/tutorial-dialog';
 import { buildRange, parseRange } from '@/features/dashboard/ranges';
 import type { Currency } from '@/lib/format';
 
@@ -211,7 +212,12 @@ export default async function DashboardPage({
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-col items-start gap-1.5">
-          <Label>{t('greeting', { name })}</Label>
+          <div className="flex items-center gap-2">
+            <Label>{t('greeting', { name })}</Label>
+            {/* La guía vive junto al saludo: es lo primero que se lee y no
+                compite con ninguna acción. */}
+            <TutorialDialog />
+          </div>
           {rate && (
             <RateStamp
               rate={rate.rate}

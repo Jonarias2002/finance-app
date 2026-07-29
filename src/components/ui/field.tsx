@@ -1,18 +1,37 @@
 import { cn } from '@/lib/cn';
 
+/** `overline`: etiqueta en versalitas espaciadas, como el componente Label. */
+type LabelVariant = 'inline' | 'overline';
+
+const LABEL: Record<LabelVariant, string> = {
+  inline: 'text-caption text-ink font-medium',
+  // Tracking por encima del que ya trae `text-label`: en versalitas, el aire
+  // extra es lo que las separa del texto normal a este tamaño.
+  overline: 'text-label text-sage font-medium tracking-[0.1em] uppercase',
+};
+
 type FieldProps = {
   label: string;
   hint?: string;
   error?: string;
   required?: boolean;
   htmlFor?: string;
+  labelVariant?: LabelVariant;
   children: React.ReactNode;
 };
 
-export function Field({ label, hint, error, required, htmlFor, children }: FieldProps) {
+export function Field({
+  label,
+  hint,
+  error,
+  required,
+  htmlFor,
+  labelVariant = 'inline',
+  children,
+}: FieldProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="text-caption text-ink block font-medium">
+      <label htmlFor={htmlFor} className={cn('block', LABEL[labelVariant])}>
         {label}
         {required && <span className="text-sage"> *</span>}
       </label>

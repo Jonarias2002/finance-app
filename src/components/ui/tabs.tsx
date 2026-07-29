@@ -22,7 +22,9 @@ export function Tabs<T extends string>({
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={cn('border-line flex gap-1 border-b', className)}
+      // El desbordamiento se contiene aquí: sin esto, cuatro pestañas empujan el
+      // ancho de toda la página en móvil y la vista entera se desplaza de lado.
+      className={cn('border-line no-scrollbar flex gap-1 overflow-x-auto border-b', className)}
     >
       {tabs.map((tab) => {
         const active = tab.value === value;
@@ -34,7 +36,9 @@ export function Tabs<T extends string>({
             aria-selected={active}
             onClick={() => onChange(tab.value)}
             className={cn(
-              'text-body -mb-px border-b-2 px-4 py-2 font-medium transition-colors',
+              // Más compactas en móvil para que las cuatro de Gestión quepan sin
+              // deslizar; `shrink-0` + `nowrap` evita que se estrujen o partan.
+              'text-caption sm:text-body -mb-px shrink-0 border-b-2 px-3 py-2 font-medium whitespace-nowrap transition-colors sm:px-4',
               active ? 'border-ink text-ink' : 'text-sage hover:text-ink border-transparent',
             )}
           >

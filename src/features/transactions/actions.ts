@@ -80,17 +80,19 @@ export async function saveTransaction(
   }
 
   const rawCategory = formData.get('categoryId');
+  const rawStore = formData.get('storeId');
   const parsed = transactionSchema.safeParse({
     type: formData.get('type'),
     accountId: formData.get('accountId'),
     categoryId: rawCategory ? String(rawCategory) : null,
+    storeId: rawStore ? String(rawStore) : null,
     amount: Number(formData.get('amount')),
     description: formData.get('description'),
     occurredAt: formData.get('occurredAt'),
   });
   if (!parsed.success) return fieldErrorsFrom(parsed.error);
 
-  const { type, accountId, categoryId, amount, description, occurredAt } = parsed.data;
+  const { type, accountId, categoryId, storeId, amount, description, occurredAt } = parsed.data;
 
   // La cuenta define la moneda del movimiento (integridad del saldo).
   const { data: account } = await supabase
@@ -111,6 +113,7 @@ export async function saveTransaction(
     type,
     account_id: accountId,
     category_id: categoryId,
+    store_id: storeId,
     transfer_account_id: null,
     amount: round2(amount),
     currency,
@@ -182,6 +185,7 @@ async function saveTransfer(
     account_id: accountId,
     transfer_account_id: transferAccountId,
     category_id: null,
+    store_id: null,
     amount: round2(amount),
     currency,
     exchange_rate: rate,

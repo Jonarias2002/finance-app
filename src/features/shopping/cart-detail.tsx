@@ -46,18 +46,25 @@ export function CartDetail({ list, items, products, accounts, today }: Props) {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <Link
           href="/shopping"
-          className="text-sage hover:text-ink text-caption inline-flex items-center gap-1.5 transition-colors"
+          className="text-sage hover:text-ink text-caption inline-flex items-center gap-1.5 self-start transition-colors"
         >
           <ArrowLeft className="size-4" />
           {t('backToLists')}
         </Link>
         {!done && (
-          <div className="flex gap-2">
+          // En columna: primero la acción principal y debajo el atajo, con la
+          // nota que explica el criterio pegada a él. Ancho fijo en escritorio
+          // para que los dos botones midan igual; completo en móvil.
+          <div className="flex flex-col gap-2 sm:w-56">
+            <Button size="touch" onClick={() => setAdding(true)}>
+              <Plus className="size-4" />
+              {t('addItem')}
+            </Button>
             <Button
-              size="sm"
+              size="touch"
               variant="secondary"
               onClick={() => startTransition(() => addMissingStaples(list.id))}
               disabled={isPending}
@@ -65,10 +72,7 @@ export function CartDetail({ list, items, products, accounts, today }: Props) {
               <PackagePlus className="size-4" />
               {t('addMissing')}
             </Button>
-            <Button size="sm" onClick={() => setAdding(true)}>
-              <Plus className="size-4" />
-              {t('addItem')}
-            </Button>
+            <Caption>{t('addMissingHint')}</Caption>
           </div>
         )}
       </div>
@@ -76,9 +80,7 @@ export function CartDetail({ list, items, products, accounts, today }: Props) {
       <Card className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-section text-ink font-[family-name:var(--font-bricolage)]">
-              {list.name}
-            </h2>
+            <h2 className="text-section text-ink font-display">{list.name}</h2>
             <Caption>{list.storeName ?? t('noStore')}</Caption>
           </div>
           <ShoppingCart className="text-sage size-5" aria-hidden />
@@ -111,70 +113,85 @@ export function CartDetail({ list, items, products, accounts, today }: Props) {
           <p className="text-caption text-sage py-6 text-center">{t('noItems')}</p>
         ) : (
           <ul className="divide-line divide-y">
-            {items.map((item) => (
-              <li key={item.id} className="flex items-center gap-3 py-2.5">
-                <input
-                  type="checkbox"
-                  checked={item.checked}
-                  disabled={done || isPending}
-                  onChange={(e) =>
-                    startTransition(() => toggleItem(item.id, list.id, e.target.checked))
-                  }
-                  className="accent-ink size-4 shrink-0"
-                  aria-label={item.name}
-                />
-                <div className="min-w-0 flex-1">
-                  <span
-                    className={cn(
-                      'text-body',
-                      item.checked ? 'text-sage line-through' : 'text-ink',
-                    )}
-                  >
-                    {item.name}
-                  </span>
-                  <span className="text-caption text-sage ml-2">
-                    {item.quantity} {tUnits(item.unit)}
-                    {item.estimatedUsd != null && item.actualUsd == null && (
-                      <> · ≈ {formatMoney(item.estimatedUsd)}</>
-                    )}
-                  </span>
-                </div>
-                {!done && (
+            {items.map((item) => {
+              // El input arranca con el precio conocido: el real si ya lo pusiste
+              // y, si no, el estimado de la última compra — así se edita encima en
+              // vez de repetirlo al lado del nombre. Sin precio conocido, vacío.
+              const known = item.actualUsd ?? item.estimatedUsd;
+              const isEstimate = item.actualUsd == null && item.estimatedUsd != null;
+              return (
+                <li key={item.id} className="flex items-center gap-3 py-2.5">
                   <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    defaultValue={item.actualUsd ?? ''}
-                    placeholder={t('actualPrice')}
-                    onBlur={(e) => {
-                      const raw = e.target.value.trim();
-                      const val = raw === '' ? null : Number(raw);
-                      if (val !== item.actualUsd) {
-                        startTransition(() => setItemActual(item.id, list.id, val));
-                      }
-                    }}
-                    className="rounded-control border-line bg-surface text-body text-ink tabular h-9 w-24 border px-2 text-right"
-                    aria-label={t('actualPrice')}
+                    type="checkbox"
+                    checked={item.checked}
+                    disabled={done || isPending}
+                    onChange={(e) =>
+                      startTransition(() => toggleItem(item.id, list.id, e.target.checked))
+                    }
+                    className="accent-ink size-4 shrink-0"
+                    aria-label={item.name}
                   />
-                )}
-                {done && item.actualUsd != null && (
-                  <span className="tabular text-body text-ink w-24 text-right">
-                    {formatMoney(item.actualUsd)}
-                  </span>
-                )}
-                {!done && (
-                  <button
-                    type="button"
-                    onClick={() => startTransition(() => deleteItem(item.id, list.id))}
-                    disabled={isPending}
-                    aria-label={t('deleteItem')}
-                    className="text-sage hover:text-ladrillo shrink-0 rounded p-1 transition-colors"
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
-                )}
-              </li>
-            ))}
+                  <div className="min-w-0 flex-1">
+                    <span
+                      className={cn(
+                        'text-body',
+                        item.checked ? 'text-sage line-through' : 'text-ink',
+                      )}
+                    >
+                      {item.name}
+                    </span>
+                    <span className="text-caption text-sage ml-2">
+                      {item.quantity} {tUnits(item.unit)}
+                    </span>
+                  </div>
+                  {!done && (
+                    <Input
+                      // Sin `key`, el input no es controlado y conservaría el valor
+                      // viejo del DOM tras guardar; remontarlo lo mantiene a la par
+                      // de lo que hay en la base.
+                      key={known ?? 'empty'}
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      defaultValue={known ?? ''}
+                      placeholder={t('actualPrice')}
+                      onBlur={(e) => {
+                        const raw = e.target.value.trim();
+                        const val = raw === '' ? null : Number(raw);
+                        if (val !== item.actualUsd) {
+                          startTransition(() => setItemActual(item.id, list.id, val));
+                        }
+                      }}
+                      // Estrecho y a la derecha: es una celda de precio dentro de la
+                      // fila, no un campo de formulario. En gris mientras sea el
+                      // estimado; en tinta cuando ya es el precio confirmado.
+                      className={cn(
+                        'tabular h-9 w-24 px-2 text-right',
+                        isEstimate ? 'text-sage' : 'text-ink',
+                      )}
+                      title={isEstimate ? t('estimateHint') : undefined}
+                      aria-label={t('actualPrice')}
+                    />
+                  )}
+                  {done && item.actualUsd != null && (
+                    <span className="tabular text-body text-ink w-24 text-right">
+                      {formatMoney(item.actualUsd)}
+                    </span>
+                  )}
+                  {!done && (
+                    <button
+                      type="button"
+                      onClick={() => startTransition(() => deleteItem(item.id, list.id))}
+                      disabled={isPending}
+                      aria-label={t('deleteItem')}
+                      className="text-sage hover:text-ladrillo shrink-0 rounded p-1 transition-colors"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </Card>

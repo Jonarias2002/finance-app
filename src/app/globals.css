@@ -4,55 +4,86 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   FinWise — tokens de diseño
+   FinWise — sistema de diseño "Obsidian Gold"
    Único lugar donde se definen colores. No escribas hex sueltos
    en ningún componente.
+
+   El oscuro es la referencia: sus valores salen tal cual de
+   DESIGN.md. El claro es la contraparte derivada — mismos roles,
+   luminancias invertidas y el oro bajado de tono para que
+   contraste sobre fondo claro.
    ============================================================ */
 
+/* ---- Claro (derivado) ---- */
 :root {
   /* superficies */
-  --canvas: #edefea;
+  --canvas: #f1f3f0;
   --surface: #ffffff;
-  --surface-2: #f5f6f2;
+  --surface-2: #e8ebe6;
 
   /* texto y bordes */
-  --ink: #14211c;
-  --sage: #5c6b63;
-  --line: #d6dbd3;
-  --line-strong: #b9c2ba;
+  --ink: #161b19;
+  --sage: #4c5551;
+  --line: #d5dad4;
+  /* El `outline` #8d928e de DESIGN.md está calculado para fondo oscuro; sobre
+     claro se queda en 2.8:1. Aquí va la contraparte oscurecida. */
+  --line-strong: #6c716d;
 
   /* semánticos */
-  --verde: #2f6b4f;
-  --ladrillo: #9b3a2e;
-  --ocre: #b8892b;
+  --verde: #2c6a4c;
+  --ladrillo: #93000a;
 
-  /* marca (logo FinWise) */
-  --brand: #0e3a5a;
-  --brand-accent: #2f8b57;
+  /* Oro: color de acción del sistema. Sobre claro va oscurecido — el
+     #f1c04c del oscuro solo alcanza 3:1 sobre blanco y no sirve para texto. */
+  --ocre: #8a6410;
+  --on-ocre: #fff6e0;
 
-  --radius-card: 10px;
-  --radius-control: 8px;
+  /* marca */
+  --brand: #3c4a42;
+  --brand-accent: #394b43;
+
+  /* Panel profundo de marca (acceso). No invierte con el tema. */
+  --panel: #0d1a14;
+  --panel-ink: #e1e3e4;
 }
 
-.dark {
-  --canvas: #101815;
-  --surface: #18211d;
-  --surface-2: #1f2a25;
+/* ---- Oscuro (Obsidian Gold, valores de DESIGN.md) ----
+   `.theme-obsidian` comparte la paleta: es el ámbito que fija el aspecto
+   oscuro sin importar el tema activo, y lo usa la pantalla de acceso. */
+.dark,
+.theme-obsidian {
+  --canvas: #111415; /* background / surface */
+  --surface: #1d2021; /* surface-container */
+  --surface-2: #191c1d; /* surface-container-low */
 
-  --ink: #e8ede8;
-  --sage: #93a29a;
-  --line: #2a3630;
-  --line-strong: #3b4a43;
+  --ink: #e1e3e4; /* on-surface */
+  --sage: #c3c8c3; /* on-surface-variant */
+  --line: #434844; /* outline-variant */
+  --line-strong: #8d928e; /* outline */
 
-  --verde: #4f9d78;
-  --ladrillo: #cc6a58;
-  --ocre: #d6a94a;
+  /* DESIGN.md no define un verde de éxito; este sale de su familia sage
+     con la saturación justa para leerse como "entra dinero". */
+  --verde: #6fbd93;
+  --ladrillo: #ffb4ab; /* error */
 
-  --brand: #6ba3cc;
-  --brand-accent: #57b783;
+  --ocre: #f1c04c; /* secondary */
+  --on-ocre: #3f2e00; /* on-secondary */
+
+  --brand: #bbcac0; /* primary */
+  --brand-accent: #b7cbc1; /* tertiary */
 }
 
-/* ---- Tailwind v4: expone los tokens como utilidades ---- */
+/* Nivel 1 de elevación según DESIGN.md: contenedor en verde carbón. Solo en el
+   acceso, donde la tarjeta va sobre el panel y necesita el matiz verde; dentro
+   de la app las tarjetas usan el surface-container neutro. */
+.theme-obsidian {
+  --surface: #1e2f28;
+  color-scheme: dark;
+}
+
+/* ---- Tailwind v4: expone los tokens como utilidades ----
+   `inline` deja `var(--token)` dentro de la utilidad en vez de resolverlo,
+   que es lo que permite reescribir la paleta por ámbito (.dark, .theme-obsidian). */
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
@@ -64,39 +95,58 @@
   --color-verde: var(--verde);
   --color-ladrillo: var(--ladrillo);
   --color-ocre: var(--ocre);
+  --color-on-ocre: var(--on-ocre);
   --color-brand: var(--brand);
   --color-brand-accent: var(--brand-accent);
+  --color-panel: var(--panel);
+  --color-panel-ink: var(--panel-ink);
 
-  --font-display: var(--font-bricolage), sans-serif;
-  --font-sans: var(--font-public-sans), sans-serif;
+  --font-display: var(--font-manrope), sans-serif;
+  --font-sans: var(--font-hanken), sans-serif;
   --font-mono: var(--font-plex-mono), monospace;
 
-  --text-hero: 2.5rem;
+  /* Escala de DESIGN.md. Los nombres son los del proyecto; entre paréntesis,
+     el estilo del sistema al que corresponde cada uno. */
+  --text-hero: 3rem; /* display-lg  48 */
   --text-hero--line-height: 1.1;
   --text-hero--letter-spacing: -0.02em;
-  --text-title: 1.5rem;
+  --text-title: 2rem; /* headline-lg  32 */
   --text-title--line-height: 1.2;
-  --text-section: 1.1875rem;
-  --text-card: 1rem;
-  --text-body: 0.9375rem;
+  --text-title--letter-spacing: -0.01em;
+  --text-section: 1.5rem; /* headline-lg-mobile  24 */
+  --text-section--line-height: 1.2;
+  --text-card: 1.25rem; /* title-md  20 */
+  --text-card--line-height: 1.4;
+  --text-body-lg: 1.125rem; /* body-lg  18 */
+  --text-body-lg--line-height: 1.6;
+  --text-body: 1rem; /* body-md  16 */
   --text-body--line-height: 1.6;
-  --text-label: 0.8125rem;
-  --text-label--letter-spacing: 0.06em;
-  --text-caption: 0.8125rem;
+  --text-label: 0.75rem; /* label-sm  12 */
+  --text-label--line-height: 1;
+  --text-label--letter-spacing: 0.05em;
+
+  /* Puente entre body-md y label-sm para texto secundario denso. */
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.5;
+
   --text-fig-lg: 2.5rem;
   --text-fig-md: 1.25rem;
   --text-fig-sm: 0.875rem;
 
-  --radius-card: 10px;
-  --radius-control: 8px;
+  --radius-card: 0.5rem;
+  --radius-control: 0.25rem;
+
+  /* "Snappy pero premium": una sola curva para todas las transiciones. */
+  --default-transition-duration: 200ms;
+  --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @layer base {
   body {
     background-color: var(--canvas);
     color: var(--ink);
-    font-family: var(--font-public-sans), sans-serif;
-    font-size: 0.9375rem;
+    font-family: var(--font-hanken), sans-serif;
+    font-size: 1rem;
     line-height: 1.6;
   }
 
@@ -108,7 +158,7 @@
   }
 
   *:focus-visible {
-    outline: 2px solid var(--ink);
+    outline: 2px solid var(--ocre);
     outline-offset: 2px;
   }
 }
@@ -117,6 +167,49 @@
   /* Rayado diagonal del saldo reservado — el elemento firma */
   .hatch-ocre {
     background-image: repeating-linear-gradient(45deg, transparent 0 4px, var(--ocre) 4px 8px);
+  }
+
+  /* Entrada del formulario de acceso: un solo disparo. `both` conserva el
+     estado final, así el bloque de reduced-motion lo deja visible al instante
+     en vez de dejarlo transparente. */
+  .fade-in-up {
+    animation: fade-in-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  /* Deriva lenta del halo del panel de marca. Solo decorativo: nunca sobre
+     texto ni sobre controles. */
+  .drift {
+    animation: drift 14s ease-in-out infinite;
+  }
+
+  /* Tiras deslizables (pestañas en móvil): la barra de desplazamiento cortaría
+     el subrayado del tablist, y el gesto ya es evidente por el corte lateral. */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-28px);
   }
 }
 

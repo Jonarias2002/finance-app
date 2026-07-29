@@ -1,7 +1,7 @@
 export { Card, CardHeader, CardTitle } from './card';
 export { Label, Caption } from './label';
 export { Figure } from './figure';
-export { Button } from './button';
+export { Button, buttonClass } from './button';
 export { Pill, StatusBadge } from './pill';
 export { Alert } from './alert';
 export { Progress } from './progress';
@@ -12,4 +12,6 @@ export { Field, Input, Select } from './field';
 export { AmountInput } from './amount-input';
 export { Table, Th, Tr, Td } from './table';
 export { Tabs } from './tabs';
+export { Segmented, type SegmentedShape } from './segmented';
 export { Pagination, usePagination } from './pagination';
+export { Wordmark } from './wordmark';

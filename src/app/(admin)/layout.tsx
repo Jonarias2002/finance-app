@@ -31,9 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <ArrowLeft className="size-4" />
           {t('back')}
         </Link>
-        <h1 className="text-title text-ink font-[family-name:var(--font-bricolage)]">
-          {t('title')}
-        </h1>
+        <h1 className="text-title text-ink font-display">{t('title')}</h1>
       </header>
       <main className="mx-auto max-w-[900px] px-4 py-8 md:px-8">{children}</main>
     </div>

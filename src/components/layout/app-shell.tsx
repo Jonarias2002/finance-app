@@ -12,6 +12,7 @@ import {
   ShoppingCart,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { Wordmark } from '@/components/ui';
 import { UserMenu } from '@/components/layout/user-menu';
 import type { Theme } from '@/lib/theme';
 import type { Locale } from '@/i18n/request';
@@ -55,10 +56,10 @@ export function AppShell({ title, cycleLabel, user, children }: AppShellProps) {
     <div className="bg-canvas min-h-dvh">
       {/* Barra lateral — escritorio */}
       <nav className="border-line bg-surface fixed inset-y-0 left-0 z-50 hidden w-60 flex-col border-r p-4 lg:flex">
-        <Link href="/" className="mb-8 flex items-center gap-2 px-2">
-          <span className="text-section text-ink font-[family-name:var(--font-bricolage)]">
-            FinWise
-          </span>
+        {/* Mismo logotipo que el acceso: el emblema y el bicolor no cambian
+            entre pantallas, solo el tamaño. */}
+        <Link href="/" className="mb-8 flex px-2">
+          <Wordmark />
         </Link>
 
         <ul className="flex flex-1 flex-col gap-0.5">
@@ -85,9 +86,7 @@ export function AppShell({ title, cycleLabel, user, children }: AppShellProps) {
       {/* Barra superior */}
       <header className="border-line bg-surface fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between gap-4 border-b px-4 lg:left-60">
         <div className="flex min-w-0 items-center gap-3">
-          <h1 className="text-title text-ink truncate font-[family-name:var(--font-bricolage)]">
-            {heading}
-          </h1>
+          <h1 className="text-title text-ink font-display truncate">{heading}</h1>
           {cycleLabel && (
             <span className="border-line bg-canvas text-caption text-sage hidden shrink-0 rounded-full border px-3 py-0.5 md:inline">
               {cycleLabel}

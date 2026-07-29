@@ -31,7 +31,7 @@ Estas decisiones ya están cerradas. Si alguna cambia, actualiza este documento 
 | 18  | i18n                  | `next-intl`, estrategia por cookie                                                        | App privada, no necesita prefijo en la URL                                                              |
 | 19  | Migraciones           | Archivos `.sql` versionados en el repo                                                    | Nunca cambiar el esquema desde el panel                                                                 |
 | 20  | Presupuesto           | Todo en planes gratuitos                                                                  | Restricción del proyecto                                                                                |
-| 21  | Gestor de paquetes    | **pnpm** (lockfile único `pnpm-lock.yaml`, sin `package-lock.json`)                        | Instalación rápida, disco eficiente, `node_modules` estricto. Comandos en AGENTS.md                     |
+| 21  | Gestor de paquetes    | **pnpm** (lockfile único `pnpm-lock.yaml`, sin `package-lock.json`)                       | Instalación rápida, disco eficiente, `node_modules` estricto. Comandos en AGENTS.md                     |
 
 ---
 
@@ -177,6 +177,9 @@ finance-app/
 │   │   ├── goals/
 │   │   ├── recurring/
 │   │   ├── exchange-rates/
+│   │   ├── shopping/           # carritos, ítems, cierre de compra (§16)
+│   │   ├── products/           # catálogo, tiendas, historial de precios
+│   │   ├── tutorial/           # guía en la app (§17)
 │   │   └── admin/
 │   │
 │   ├── domain/                # lógica pura, sin imports externos
@@ -326,7 +329,13 @@ Route handler en `src/app/api/cron/sync-rates/route.ts`:
 3. Hace `upsert` en `exchange_rates` para la fecha de hoy (oficial y paralelo)
 4. Si la API falla, deja la última tasa conocida y registra el error
 
-Programación: cron de Vercel (`vercel.json`) o `pg_cron` dentro de Supabase. `pg_cron` te independiza del hosting.
+Programación: cron de Vercel (`vercel.json`, ya en el repo) o `pg_cron` dentro de
+Supabase. El `vercel.json` la agenda a las 13:00 UTC — 9:00 en Caracas, con las
+tasas del día ya publicadas. Vercel manda `Authorization: Bearer $CRON_SECRET`
+por su cuenta, que es justo lo que valida la ruta, así que **basta con definir
+`CRON_SECRET` en las variables de entorno del proyecto**. En el plan Hobby el
+disparo es aproximado (dentro de la hora) y hay tope de un cron diario; si algún
+día molesta esa dependencia del hosting, `pg_cron` hace lo mismo desde Supabase.
 
 **Verificación:** llamar el endpoint a mano y confirmar que aparece la fila del día en `exchange_rates`.
 
@@ -416,9 +425,14 @@ preferencias en `profiles` ya están hechos):
   `transfer` con `transfer_account_id`; la vista resta del origen y suma al
   destino). Cross-moneda (USD↔Bs) queda fuera: la vista suma el monto en la
   moneda del origen, así que convertir requeriría un segundo monto/columna.
-- **Agendar los cron**: la ruta `/api/cron/sync-rates` funciona pero no está
-  programada; el "registrar ahora" de gastos fijos es manual (falta un cron que
-  recorra los vencidos). Ambos se resuelven en el deploy (`pg_cron` o Vercel Cron).
+- **Agendar los cron**: `/api/cron/sync-rates` ya queda agendada por `vercel.json`
+  al desplegar (§12). Falta el del "registrar ahora" de gastos fijos, que sigue
+  siendo manual. En local no hay cron: el sello de la tasa se ve "desactualizada"
+  porque la fila más reciente de `exchange_rates` no es de hoy — no es un fallo,
+  la app sigue con la última tasa conocida.
+- **Migración `20260728120000_transaction_store.sql` sin aplicar**: `pnpm db:apply`
+  necesita `SUPABASE_ACCESS_TOKEN` en `.env.local`. Hasta aplicarla, guardar un
+  gasto con tienda falla con el error genérico.
 
 Terminada la v1, el siguiente gran módulo es el **Carrito de compras con
 presupuesto** (§16).
@@ -534,6 +548,29 @@ alter table public.transactions
   add column shopping_list_id uuid references public.shopping_lists (id) on delete set null;
 ```
 
+Y una segunda, ya en v2.1 (`20260728120000_transaction_store.sql`): la tienda de
+un gasto suelto, para que comprar sin carrito también alimente el "dónde compro
+más barato". La regla vive en la tabla, no en el formulario:
+
+```sql
+alter table public.transactions
+  add column store_id uuid references public.stores (id) on delete set null;
+
+-- Solo un gasto ocurre en una tienda.
+alter table public.transactions
+  add constraint transactions_store_only_expense
+  check (store_id is null or type = 'expense');
+
+-- Parcial: por el check, ingresos y transferencias llevan null y son la mayoría.
+create index transactions_store_idx on public.transactions (store_id, occurred_at desc)
+  where store_id is not null;
+```
+
+El formulario de movimientos solo enseña el selector cuando el tipo es gasto, y
+`transactionSchema` lo anula con un `.transform()` para el envío manipulado — la
+UI es comodidad, el check es quien manda. Al cerrar un carrito, el gasto hereda
+la tienda de la lista.
+
 ### Las tres reglas que lo definen
 
 1. **El presupuesto avisa, no bloquea.** El total corre en vivo contra
@@ -587,6 +624,56 @@ antes de salir de casa.
    vs. Bs, y edición de `is_staple` / `typical_days` / categoría por defecto.
 
 Ambas rutas entran al sidebar solo-escritorio, junto a Cuentas y Categorías.
+
+---
+
+## 17. Guía en la app
+
+Un icono `Info` junto al saludo del inicio abre `TutorialDialog`
+(`src/features/tutorial/`): un índice de los nueve módulos y, por cada uno, una
+ficha con tres bloques — **qué es**, **qué te pide el formulario** y **dónde lo
+usas después**. Ese tercer bloque es la razón de existir de la guía: lo que no
+se deduce de la interfaz es que un producto reaparece en el carrito, que la
+categoría por defecto de un producto es lo que clasifica una compra cerrada, o
+que una deuda no mueve el saldo de ninguna cuenta.
+
+Dos decisiones que conviene no deshacer sin querer:
+
+- **La prosa vive en `messages/*.json`**, namespace `tutorial`, no en el
+  componente. Regla del proyecto: cero texto literal en el JSX (§11).
+- **El nombre de cada módulo se lee del namespace `nav`**, no de `tutorial`.
+  Renombrar una sección en el menú la renombra también en la guía; duplicarlo
+  garantizaba que se desincronizaran.
+
+El icono es `Info` y no `!` a propósito: en este sistema el ocre y el `!` ya
+significan _aviso_ (sobregasto, deuda vencida), y un `!` fijo en la cabecera se
+leería como que algo va mal.
+
+---
+
+## 18. Sistema de diseño — reglas que se rompen solas
+
+Apuntes de mantenimiento, todos aprendidos rompiéndolos:
+
+- **Nada de clases de botón copiadas.** `Button` exporta también
+  `buttonClass({variant, size, className})` para los `<Link>` que deben verse
+  como botón (envolver un `Link` de Next en `Button` pierde el prefetch). Copiar
+  la cadena de clases es lo que hizo que el mismo CTA acabara con dos alturas
+  distintas en dos pantallas.
+- **El área táctil es un tamaño, no un parche.** `size="touch"` = `sm` con el
+  alto de `md` mientras la pantalla es de móvil. Sustituye al `h-11 sm:h-9`
+  suelto por botón.
+- **El desbordamiento se contiene en el componente.** `Tabs` lleva
+  `overflow-x-auto` + `shrink-0`: cuatro pestañas empujaban el ancho de la
+  página entera en móvil. Si aparece otra tira horizontal, mismo tratamiento —
+  no un `overflow-hidden` en la página.
+- **Las versalitas son `Label`.** `text-label text-sage font-medium uppercase`
+  escrito a mano acaba con un `tracking` distinto en cada sitio; el
+  interletraje lo fija la escala (`--text-label--letter-spacing`).
+- **Los colores solo se definen en `globals.css`.** Si añades un token, regístralo
+  también en los `classGroups` de `src/lib/cn.ts`: tailwind-merge no conoce los
+  nombres propios y, sin eso, no puede deduplicar (`text-body` y `text-canvas`
+  caerían en el mismo grupo).
 
 ---
 

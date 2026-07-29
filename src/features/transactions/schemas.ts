@@ -8,14 +8,20 @@ export const FORM_TYPES = ['income', 'expense', 'transfer'] as const;
 export type TxnType = (typeof FORM_TYPES)[number];
 
 /** Los mensajes son claves i18n de `transactions.errors`. */
-export const transactionSchema = z.object({
-  type: z.enum(TXN_TYPES),
-  accountId: z.uuid(),
-  categoryId: z.uuid().nullable(),
-  amount: z.number().positive('amountRequired'),
-  description: z.string().trim().min(1, 'required').max(120, 'tooLong'),
-  occurredAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-});
+export const transactionSchema = z
+  .object({
+    type: z.enum(TXN_TYPES),
+    accountId: z.uuid(),
+    categoryId: z.uuid().nullable(),
+    /** Tienda donde se hizo el gasto. Solo aplica a gastos (ver migración). */
+    storeId: z.uuid().nullable(),
+    amount: z.number().positive('amountRequired'),
+    description: z.string().trim().min(1, 'required').max(120, 'tooLong'),
+    occurredAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  })
+  // El formulario ya oculta la tienda en los ingresos; esto cubre el envío
+  // manipulado, que si no chocaría contra el check de la tabla.
+  .transform((d) => (d.type === 'expense' ? d : { ...d, storeId: null }));
 
 export const transferSchema = z
   .object({
@@ -43,6 +49,8 @@ export type TxnRow = {
   transferAccountName: string | null;
   categoryId: string | null;
   categoryName: string | null;
+  storeId: string | null;
+  storeName: string | null;
   amount: number;
   currency: Currency;
   amountUsd: number;
@@ -53,5 +61,6 @@ export type TxnRow = {
 
 export type AccountOption = { id: string; name: string; currency: Currency };
 export type CategoryOption = { id: string; name: string; kind: 'income' | 'expense' };
+export type StoreOption = { id: string; name: string };
 /** Producto del catálogo, con su categoría por defecto, para autocompletar el gasto. */
 export type ProductOption = { id: string; name: string; categoryId: string | null };
