@@ -24,6 +24,37 @@ export function formatRate(rate: number): string {
   return numberFormat.format(rate);
 }
 
+// --- Campos de monto -------------------------------------------------------
+// Convención es-VE: el punto separa los miles y la coma los decimales. Estas tres
+// funciones existen para que nadie tenga que teclear ni el punto ni la coma.
+
+/**
+ * Da forma a lo que se está escribiendo: "1284500" -> "1.284.500", "1284,5" ->
+ * "1.284,5". Descarta lo que no sea dígito o coma, agrupa los miles y recorta a
+ * dos decimales. Pensado para llamarse en cada tecla.
+ */
+export function formatAmountInput(text: string): string {
+  const cleaned = text.replace(/[^\d,]/g, '');
+  const [rawInt = '', ...rest] = cleaned.split(',');
+  // Sin ceros a la izquierda, pero "0" y "0,50" siguen siendo válidos.
+  const int = rawInt.replace(/^0+(?=\d)/, '');
+  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  if (!cleaned.includes(',')) return grouped;
+  return `${grouped},${rest.join('').slice(0, 2)}`;
+}
+
+/** Al salir del campo: "1.284" -> "1.284,00", "1.284,5" -> "1.284,50". */
+export function completeAmountInput(text: string): string {
+  if (!text.trim()) return '';
+  const [int = '', dec = ''] = formatAmountInput(text).split(',');
+  return `${int || '0'},${(dec + '00').slice(0, 2)}`;
+}
+
+/** 1284.5 -> "1.284,50", para precargar el campo al editar. */
+export function amountToInput(amount: number): string {
+  return completeAmountInput(String(amount).replace('.', ','));
+}
+
 /** 0.44 -> "44 %" */
 export function formatPercent(ratio: number): string {
   return `${Math.round(ratio * 100)}${THIN_SPACE}%`;

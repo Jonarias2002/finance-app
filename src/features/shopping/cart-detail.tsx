@@ -34,14 +34,40 @@ type Props = {
   today: string;
 };
 
+/**
+ * "1,50" o "1.50" -> 1.5. Vacío o inválido -> null.
+ *
+ * El teclado del móvil escribe la coma decimal: un `input type="number"` la
+ * considera inválida y devuelve cadena vacía, así que el precio se perdía sin
+ * aviso. Con coma, el punto es separador de miles (es-VE); sin coma, un punto
+ * suelto es el decimal para no convertir "1.50" en 150.
+ */
+function parsePrice(text: string): number | null {
+  const raw = text.trim();
+  if (!raw) return null;
+  const n = Number(raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : raw);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+/** 1.5 -> "1,5" para que el campo muestre lo mismo que el usuario teclea. */
+function priceToText(value: number | null | undefined): string {
+  return value == null ? '' : String(value).replace('.', ',');
+}
+
 export function CartDetail({ list, items, products, accounts, today }: Props) {
   const t = useTranslations('shopping');
   const tUnits = useTranslations('products.units');
   const [isPending, startTransition] = useTransition();
   const [adding, setAdding] = useState(false);
   const [closing, setClosing] = useState(false);
+  // Precios recién escritos, antes de que el servidor devuelva la lista. Al tocar
+  // "Cerrar compra" el toque primero saca el foco del input: sin esto el total
+  // seguía en cero un instante y el botón deshabilitado se comía ese toque.
+  const [draftPrices, setDraftPrices] = useState<Record<string, number | null>>({});
 
-  const total = items.reduce((s, it) => s + (it.actualUsd ?? it.estimatedUsd ?? 0), 0);
+  const priceOf = (it: ItemRow) =>
+    (it.id in draftPrices ? draftPrices[it.id] : it.actualUsd) ?? it.estimatedUsd ?? 0;
+  const total = items.reduce((s, it) => s + priceOf(it), 0);
   const done = list.status === 'completed';
 
   return (
@@ -150,14 +176,12 @@ export function CartDetail({ list, items, products, accounts, today }: Props) {
                       // viejo del DOM tras guardar; remontarlo lo mantiene a la par
                       // de lo que hay en la base.
                       key={known ?? 'empty'}
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      defaultValue={known ?? ''}
+                      inputMode="decimal"
+                      defaultValue={priceToText(known)}
                       placeholder={t('actualPrice')}
                       onBlur={(e) => {
-                        const raw = e.target.value.trim();
-                        const val = raw === '' ? null : Number(raw);
+                        const val = parsePrice(e.target.value);
+                        setDraftPrices((prev) => ({ ...prev, [item.id]: val }));
                         if (val !== item.actualUsd) {
                           startTransition(() => setItemActual(item.id, list.id, val));
                         }
@@ -258,6 +282,8 @@ function AddItemForm({
   const t = useTranslations('shopping');
   const [state, action, pending] = useActionState(addItem, undefined);
   const [productId, setProductId] = useState('');
+  const [quantityText, setQuantityText] = useState('1');
+  const quantity = parsePrice(quantityText);
 
   useEffect(() => {
     if (state?.ok) onDone();
@@ -299,13 +325,14 @@ function AddItemForm({
       )}
 
       <Field label={t('fields.quantity')} htmlFor="quantity" required error={err('quantity')}>
+        {/* Igual que el precio: el campo es de texto para aceptar la coma decimal
+            del teclado móvil, y al servidor viaja ya normalizada. */}
+        <input type="hidden" name="quantity" value={quantity ?? ''} />
         <Input
           id="quantity"
-          name="quantity"
-          type="number"
-          step="0.001"
-          min="0"
-          defaultValue={1}
+          inputMode="decimal"
+          value={quantityText}
+          onChange={(e) => setQuantityText(e.target.value)}
           required
         />
       </Field>
@@ -320,7 +347,7 @@ function AddItemForm({
         <Button type="button" variant="secondary" onClick={onDone} disabled={pending}>
           {t('cancel')}
         </Button>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || quantity == null || quantity <= 0}>
           {t('add')}
         </Button>
       </DialogFooter>

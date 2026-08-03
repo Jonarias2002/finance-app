@@ -20,20 +20,25 @@ import { DebtFormDialog } from './debt-form-dialog';
 import { PaymentsDialog } from './payments-dialog';
 import { deleteDebt, setDebtSettled } from './actions';
 import { DEBT_DIRECTIONS, type DebtDirection, type DebtRow } from './schemas';
+import type { AccountOption } from '@/features/transactions/schemas';
+
+type PaymentsIntent = 'payment' | 'settle';
 
 type Props = {
   debts: DebtRow[];
+  accounts: AccountOption[];
   rate: number;
   today: string;
 };
 
-export function DebtsManager({ debts, rate, today }: Props) {
+export function DebtsManager({ debts, accounts, rate, today }: Props) {
   const t = useTranslations('debts');
   const [formOpen, setFormOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [tab, setTab] = useState<DebtDirection>('i_owe');
   const [paymentsOpen, setPaymentsOpen] = useState(false);
   const [paymentsId, setPaymentsId] = useState<string | null>(null);
+  const [intent, setIntent] = useState<PaymentsIntent>('payment');
   const [isPending, startTransition] = useTransition();
 
   // Derivar de la lista fresca (tras revalidar) evita mostrar datos obsoletos.
@@ -48,15 +53,26 @@ export function DebtsManager({ debts, rate, today }: Props) {
     setEditId(debt.id);
     setFormOpen(true);
   }
-  function openPayments(debt: DebtRow) {
+  function openPayments(debt: DebtRow, next: PaymentsIntent = 'payment') {
     setPaymentsId(debt.id);
+    setIntent(next);
     setPaymentsOpen(true);
   }
   function remove(debt: DebtRow) {
     if (!confirm(t('deleteConfirm'))) return;
     startTransition(() => deleteDebt(debt.id));
   }
+  /**
+   * Saldar una deuda que aún debe algo no es solo un flag: o pagaste el resto —y
+   * eso es un movimiento— o la estás cerrando sin pagar. En vez de decidirlo por
+   * el usuario, se abre el diálogo con las dos salidas a la vista. Reabrir y
+   * cerrar una deuda ya cubierta sí son cambios de estado y nada más.
+   */
   function toggleSettled(debt: DebtRow) {
+    if (!debt.isSettled && debt.remaining > 0) {
+      openPayments(debt, 'settle');
+      return;
+    }
     startTransition(() => setDebtSettled(debt.id, !debt.isSettled));
   }
 
@@ -193,7 +209,9 @@ export function DebtsManager({ debts, rate, today }: Props) {
         open={paymentsOpen}
         onOpenChange={setPaymentsOpen}
         debt={paymentsDebt}
+        accounts={accounts}
         defaultDate={today}
+        intent={intent}
       />
     </>
   );

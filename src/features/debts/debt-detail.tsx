@@ -11,6 +11,7 @@ import {
   Caption,
   Field,
   Input,
+  Select,
   Button,
   Pill,
   Figure,
@@ -21,16 +22,18 @@ import { formatMoney, formatDayMonth } from '@/lib/format';
 import { cn } from '@/lib/cn';
 import { addPayment, deletePayment } from './actions';
 import type { DebtRow } from './schemas';
+import type { AccountOption } from '@/features/transactions/schemas';
 
 type Props = {
   debt: DebtRow;
+  accounts: AccountOption[];
   rate: number;
   today: string;
 };
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-export function DebtDetail({ debt, rate, today }: Props) {
+export function DebtDetail({ debt, accounts, rate, today }: Props) {
   const t = useTranslations('debts');
   const [state, action, pending] = useActionState(addPayment, undefined);
   const [isPending, startTransition] = useTransition();
@@ -134,9 +137,14 @@ export function DebtDetail({ debt, rate, today }: Props) {
                 <span className="tabular text-caption text-sage shrink-0 text-right">
                   {t('remaining')} {formatMoney(balanceAfter.get(p.id) ?? 0, debt.currency)}
                 </span>
+                {/* Borrar un abono nacido de un movimiento borra ese movimiento:
+                    lo avisamos, porque toca el saldo de la cuenta. */}
                 <button
                   type="button"
-                  onClick={() => startTransition(() => deletePayment(p.id))}
+                  onClick={() => {
+                    if (p.transactionId && !confirm(t('payments.deleteWithTransaction'))) return;
+                    startTransition(() => deletePayment(p.id));
+                  }}
                   disabled={isPending}
                   aria-label={t('actions.delete')}
                   className="text-sage hover:text-ladrillo shrink-0 rounded p-1 transition-colors"
@@ -148,8 +156,11 @@ export function DebtDetail({ debt, rate, today }: Props) {
           </ul>
         )}
 
-        {/* Nuevo abono */}
-        {!debt.isSettled && (
+        {/* Nuevo abono. Crea también el movimiento: por eso pide cuenta. */}
+        {!debt.isSettled && accounts.length === 0 && (
+          <p className="text-body text-sage mt-4">{t('payments.needAccount')}</p>
+        )}
+        {!debt.isSettled && accounts.length > 0 && (
           <form key={formKey} action={action} className="mt-4 space-y-3">
             <input type="hidden" name="debtId" value={debt.id} />
             <div className="grid grid-cols-[1fr_9rem] gap-3">
@@ -164,6 +175,20 @@ export function DebtDetail({ debt, rate, today }: Props) {
                 <Input id="paidAt" name="paidAt" type="date" defaultValue={today} required />
               </Field>
             </div>
+            <Field
+              label={t('payments.account')}
+              htmlFor="accountId"
+              error={err('accountId')}
+              hint={t('payments.accountHint')}
+            >
+              <Select id="accountId" name="accountId" defaultValue={accounts[0]?.id}>
+                {accounts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} · {a.currency}
+                  </option>
+                ))}
+              </Select>
+            </Field>
             <Field label={t('payments.note')} htmlFor="note">
               <Input
                 id="note"
