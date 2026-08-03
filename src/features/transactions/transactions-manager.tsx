@@ -19,6 +19,7 @@ import {
   Input,
   Pagination,
   usePagination,
+  RowMenu,
 } from '@/components/ui';
 import { formatMoney, formatDayMonth } from '@/lib/format';
 import { deleteTransaction } from './actions';
@@ -28,10 +29,11 @@ import type {
   CategoryOption,
   ProductOption,
   StoreOption,
+  DebtOption,
   TxnRow,
   TxnType,
 } from './schemas';
-import type { RatePoint } from '@/features/exchange-rates/rate-history';
+import type { RateHistories } from '@/features/exchange-rates/rate-history';
 
 type Filter = 'all' | TxnType;
 
@@ -41,7 +43,8 @@ type Props = {
   categories: CategoryOption[];
   products: ProductOption[];
   stores: StoreOption[];
-  rateHistory: RatePoint[];
+  debts: DebtOption[];
+  rateHistories: RateHistories;
   today: string;
 };
 
@@ -51,7 +54,8 @@ export function TransactionsManager({
   categories,
   products,
   stores,
-  rateHistory,
+  debts,
+  rateHistories,
   today,
 }: Props) {
   const t = useTranslations('transactions');
@@ -122,6 +126,8 @@ export function TransactionsManager({
   }
 
   const canCreate = accounts.length > 0;
+  const debtOf = (txn: TxnRow) =>
+    txn.debtId ? (debts.find((d) => d.id === txn.debtId) ?? null) : null;
 
   return (
     <>
@@ -249,6 +255,13 @@ export function TransactionsManager({
                     {txn.storeName && (
                       <span className="text-label text-sage hidden md:block">{txn.storeName}</span>
                     )}
+                    {/* Que el movimiento abone una deuda no se ve en el monto ni
+                        en la categoría: sin esto, el enlace sería invisible. */}
+                    {debtOf(txn) && (
+                      <span className="text-label text-ocre block">
+                        {t('paysDebt', { counterparty: debtOf(txn)!.counterparty })}
+                      </span>
+                    )}
                   </Td>
                   <Td className="hidden md:table-cell">
                     {txn.categoryName ? (
@@ -278,32 +291,44 @@ export function TransactionsManager({
                           signed
                         />
                       )}
-                      {txn.currency === 'VES' && (
+                      {/* Debajo del monto que movió el saldo: lo que se tecleó, si
+                          fue en otra moneda; si no, el valor en dólares. */}
+                      {txn.entryAmount != null && txn.entryCurrency ? (
                         <span className="tabular text-caption text-sage">
-                          ≈ {formatMoney(txn.amountUsd)}
+                          {t('paidWith', {
+                            amount: formatMoney(txn.entryAmount, txn.entryCurrency),
+                          })}
                         </span>
+                      ) : (
+                        txn.currency === 'VES' && (
+                          <span className="tabular text-caption text-sage">
+                            ≈ {formatMoney(txn.amountUsd)}
+                          </span>
+                        )
                       )}
                     </div>
                   </Td>
                   <Td align="right">
-                    <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => openEdit(txn)}
-                        aria-label={t('actions.edit')}
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => remove(txn)}
-                        disabled={isPending}
-                        aria-label={t('actions.delete')}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
+                    {/* Los tres puntitos siempre visibles: las acciones al pasar el
+                        ratón no existen en una pantalla táctil. */}
+                    <div className="flex justify-end">
+                      <RowMenu
+                        ariaLabel={t('actions.more')}
+                        items={[
+                          {
+                            label: t('actions.edit'),
+                            icon: Pencil,
+                            onSelect: () => openEdit(txn),
+                          },
+                          {
+                            label: t('actions.delete'),
+                            icon: Trash2,
+                            tone: 'danger',
+                            disabled: isPending,
+                            onSelect: () => remove(txn),
+                          },
+                        ]}
+                      />
                     </div>
                   </Td>
                 </Tr>
@@ -327,7 +352,8 @@ export function TransactionsManager({
           categories={categories}
           products={products}
           stores={stores}
-          rateHistory={rateHistory}
+          debts={debts}
+          rateHistories={rateHistories}
           defaultDate={today}
           defaultType={defaultType}
           onSaved={() => setOpen(false)}

@@ -11,6 +11,7 @@ export { EmptyState } from './empty-state';
 export { Field, Input, Select } from './field';
 export { AmountInput } from './amount-input';
 export { Table, Th, Tr, Td } from './table';
+export { RowMenu, type RowMenuItem } from './row-menu';
 export { Tabs } from './tabs';
 export { Segmented, type SegmentedShape } from './segmented';
 export { Pagination, usePagination } from './pagination';

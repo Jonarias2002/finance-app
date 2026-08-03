@@ -21,9 +21,13 @@ export const debtSchema = z.object({
 
 export const paymentSchema = z.object({
   debtId: z.uuid(),
+  /** Cuenta de la que sale (o a la que entra) el dinero: el abono es un movimiento. */
+  accountId: z.uuid(),
   amount: z.number().positive('amountRequired'),
   note: z.string().trim().max(200, 'tooLong').nullable(),
   paidAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  /** Cierra la deuda aunque el abono no cubra lo pendiente. */
+  settle: z.boolean(),
 });
 
 export type ActionState =
@@ -34,6 +38,11 @@ export type PaymentRow = {
   amount: number;
   note: string | null;
   paidAt: string;
+  /**
+   * Movimiento que lo originó, si vino del libro. Esos abonos no se borran desde
+   * aquí: se borra el movimiento y el abono se va con él.
+   */
+  transactionId: string | null;
 };
 
 export type DebtRow = {

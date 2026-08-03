@@ -39,9 +39,7 @@
   "amountInput": {
     "amount": "Amount",
     "currency": "Currency",
-    "rate": "rate",
-    "on": "of",
-    "change": "change"
+    "on": "of"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -111,7 +109,7 @@
       "transactions": {
         "hook": "The ledger: every income and every expense.",
         "what": "The record of everything coming in and going out. Each entry stores the rate of the day it happened, so past entries don't change value when the dollar moves.",
-        "form": "Type (income or expense), amount, category, store if it was a purchase, the account you paid with, a description and the date. If the account is in bolívars you can override the rate by hand; leave it empty and it uses the rate for the chosen date.",
+        "form": "The first thing is the type: income, expense, debt payment or debt collection. The fields change with it. Income and expenses ask for amount, category, store if it was a purchase, the account, a description and the date. A debt payment or collection asks for none of that: just which debt it goes to and whether it is a partial payment or settles it in full. If bolívars are involved you pick the rate: BCV (the default), Parallel or Manual.",
         "where": "It feeds the Income, Expenses and Net figures on Home, the expenses-by-category chart, and the balance of the account you used."
       },
       "categories": {
@@ -306,31 +304,43 @@
     "fields": {
       "type": "Type",
       "account": "Account",
-      "from": "From",
-      "to": "To",
       "category": "Category",
       "product": "Product",
       "store": "Store",
       "description": "Description",
       "date": "Date",
       "amount": "Amount",
-      "rate": "Rate"
+      "rate": "Rate",
+      "debt": "Debt",
+      "kind": "Movement type"
     },
     "pickProduct": "Pick a product…",
     "productHint": "Autofills the description with a product from this category.",
     "noStore": "No store",
     "storeHint": "Where the purchase was made. Optional.",
-    "rateHint": "Bolívars per 1 USD. Leave empty to use the rate for the selected date.",
-    "rateAuto": "Use date's rate",
+    "rateHint": "Bolívars per 1 USD. BCV and Parallel follow the movement's date; Manual freezes what you type.",
+    "paidWith": "paid with {amount}",
+    "debtHint": "Mark this movement as a payment towards a debt.",
+    "debtRemaining": "{amount} will remain, minus what you pay now.",
+    "debtSettleHint": "The debt will be settled even if the amount doesn't cover what's left.",
+    "debtModes": {
+      "partial": "Payment",
+      "settle": "Settle in full"
+    },
+    "paysDebt": "payment to {counterparty}",
+    "rateSources": {
+      "official": "BCV",
+      "parallel": "Parallel",
+      "manual": "Manual"
+    },
     "noCategory": "No category",
-    "needSecondAccount": "You need another account in the same currency to transfer.",
     "descriptionPlaceholder": "e.g. Groceries, Salary, Uber",
-    "transferPlaceholder": "e.g. Move to savings",
     "save": "Save",
     "cancel": "Cancel",
     "actions": {
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "more": "More actions"
     },
     "deleteConfirm": "Delete this transaction? This cannot be undone.",
     "errors": {
@@ -347,7 +357,14 @@
       "from": "From",
       "to": "To",
       "clear": "Clear"
-    }
+    },
+    "kinds": {
+      "income": "Income",
+      "expense": "Expense",
+      "debtPayment": "Debt payment",
+      "debtCollection": "Debt collection"
+    },
+    "pickDebt": "Pick a debt…"
   },
   "debts": {
     "new": "New debt",
@@ -385,7 +402,15 @@
       "date": "Date",
       "note": "Note",
       "notePlaceholder": "Optional",
-      "add": "Add payment"
+      "add": "Add payment",
+      "account": "Account",
+      "accountHint": "The payment is recorded as a transaction on this account, with that date's BCV rate.",
+      "needAccount": "You need an account to record the payment: the money has to come from somewhere.",
+      "settleAndPay": "Pay and settle",
+      "settleWithoutPayment": "Close without recording a payment",
+      "deleteWithTransaction": "This payment came from a transaction. Deleting it also deletes the transaction and rolls back the account balance. Continue?",
+      "fromTransaction": "See in transactions",
+      "fromTransactionHint": "This payment comes from a transaction. To undo it, delete the transaction."
     },
     "actions": {
       "detail": "Detail",
@@ -403,6 +428,7 @@
       "required": "This field is required.",
       "tooLong": "Text is too long.",
       "amountRequired": "Enter an amount greater than zero.",
+      "noRate": "No rate available to convert. Refresh rates and try again.",
       "generic": "Could not save. Try again.",
       "unauthenticated": "Your session expired. Sign in again."
     }

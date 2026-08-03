@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getLatestRate } from '@/features/exchange-rates/get-latest-rate';
 import { DebtDetail } from '@/features/debts/debt-detail';
 import type { DebtDirection, DebtRow, PaymentRow } from '@/features/debts/schemas';
+import type { AccountOption } from '@/features/transactions/schemas';
 import type { Currency } from '@/lib/format';
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -11,7 +12,7 @@ export default async function DebtPage({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: debt }, { data: payments }, rate] = await Promise.all([
+  const [{ data: debt }, { data: payments }, { data: accounts }, rate] = await Promise.all([
     supabase
       .from('debts')
       .select('id, direction, counterparty, principal, currency, description, due_date, is_settled')
@@ -19,9 +20,10 @@ export default async function DebtPage({ params }: { params: Promise<{ id: strin
       .maybeSingle(),
     supabase
       .from('debt_payments')
-      .select('id, amount, note, paid_at')
+      .select('id, amount, note, paid_at, transaction_id')
       .eq('debt_id', id)
       .order('paid_at', { ascending: false }),
+    supabase.from('accounts').select('id, name, currency').eq('is_archived', false).order('name'),
     getLatestRate(supabase),
   ]);
   if (!debt) redirect('/debts');
@@ -31,6 +33,7 @@ export default async function DebtPage({ params }: { params: Promise<{ id: strin
     amount: Number(p.amount),
     note: (p.note as string | null) ?? null,
     paidAt: p.paid_at as string,
+    transactionId: (p.transaction_id as string | null) ?? null,
   }));
 
   const principal = Number(debt.principal);
@@ -54,5 +57,11 @@ export default async function DebtPage({ params }: { params: Promise<{ id: strin
     new Date(),
   );
 
-  return <DebtDetail debt={row} rate={rate?.rate ?? 0} today={today} />;
+  const accountOptions: AccountOption[] = (accounts ?? []).map((a) => ({
+    id: a.id as string,
+    name: a.name as string,
+    currency: a.currency as Currency,
+  }));
+
+  return <DebtDetail debt={row} accounts={accountOptions} rate={rate?.rate ?? 0} today={today} />;
 }

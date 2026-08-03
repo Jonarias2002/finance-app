@@ -48,12 +48,16 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          'rounded-card border-line bg-surface fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 border p-5 outline-none sm:max-w-sm',
+          'rounded-card border-line bg-surface fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col border p-5 outline-none sm:max-w-sm',
           className,
         )}
         {...props}
       >
-        {children}
+        {/* El alto se limita al del viewport y el contenido scrollea aquí dentro:
+            en pantallas bajas el pie del formulario (guardar) siempre se alcanza.
+            El margen negativo lleva el área de scroll hasta el borde de la tarjeta
+            para que la barra no quede flotando dentro del padding. */}
+        <div className="-m-5 grid gap-4 overflow-y-auto overscroll-contain p-5">{children}</div>
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getLatestRate } from '@/features/exchange-rates/get-latest-rate';
 import { DebtsManager } from '@/features/debts/debts-manager';
 import type { DebtDirection, DebtRow, PaymentRow } from '@/features/debts/schemas';
+import type { AccountOption } from '@/features/transactions/schemas';
 import type { Currency } from '@/lib/format';
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -9,7 +10,7 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 export default async function DebtsPage() {
   const supabase = await createClient();
 
-  const [{ data: debts }, { data: payments }, rate] = await Promise.all([
+  const [{ data: debts }, { data: payments }, { data: accounts }, rate] = await Promise.all([
     supabase
       .from('debts')
       .select('id, direction, counterparty, principal, currency, description, due_date, is_settled')
@@ -17,8 +18,9 @@ export default async function DebtsPage() {
       .order('created_at', { ascending: false }),
     supabase
       .from('debt_payments')
-      .select('id, debt_id, amount, note, paid_at')
+      .select('id, debt_id, amount, note, paid_at, transaction_id')
       .order('paid_at', { ascending: false }),
+    supabase.from('accounts').select('id, name, currency').eq('is_archived', false).order('name'),
     getLatestRate(supabase),
   ]);
 
@@ -30,6 +32,7 @@ export default async function DebtsPage() {
       amount: Number(p.amount),
       note: (p.note as string | null) ?? null,
       paidAt: p.paid_at as string,
+      transactionId: (p.transaction_id as string | null) ?? null,
     });
     paymentsByDebt.set(p.debt_id as string, list);
   }
@@ -53,9 +56,17 @@ export default async function DebtsPage() {
     };
   });
 
+  const accountOptions: AccountOption[] = (accounts ?? []).map((a) => ({
+    id: a.id as string,
+    name: a.name as string,
+    currency: a.currency as Currency,
+  }));
+
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Caracas' }).format(
     new Date(),
   );
 
-  return <DebtsManager debts={rows} rate={rate?.rate ?? 0} today={today} />;
+  return (
+    <DebtsManager debts={rows} accounts={accountOptions} rate={rate?.rate ?? 0} today={today} />
+  );
 }

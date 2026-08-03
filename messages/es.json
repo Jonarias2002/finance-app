@@ -39,9 +39,7 @@
   "amountInput": {
     "amount": "Monto",
     "currency": "Moneda",
-    "rate": "tasa",
-    "on": "del",
-    "change": "cambiar"
+    "on": "del"
   },
   "auth": {
     "loginTitle": "Inicia sesión",
@@ -111,7 +109,7 @@
       "transactions": {
         "hook": "El libro: cada ingreso y cada gasto.",
         "what": "El registro de todo lo que entra y sale. Cada movimiento guarda la tasa del día en que ocurrió, así lo viejo no cambia de valor cuando se mueve el dólar.",
-        "form": "Tipo (ingreso o gasto), monto, categoría, tienda si fue una compra, la cuenta con la que pagaste, una descripción y la fecha. Si la cuenta es en bolívares puedes corregir la tasa a mano; si la dejas vacía usa la de la fecha elegida.",
+        "form": "Lo primero es el tipo: ingreso, gasto, pago de deuda o cobro de deuda. Según lo que elijas cambian los campos. Un ingreso o un gasto piden monto, categoría, tienda si fue una compra, la cuenta, una descripción y la fecha. Un pago o cobro de deuda no pide nada de eso: solo a qué deuda va y si es un abono o la cancela completa. Si hay bolívares de por medio eliges la tasa: BCV (la de por defecto), Paralelo o Manual.",
         "where": "Alimenta las cifras de Ingresos, Gastos y Neto del inicio, el gráfico de gastos por categoría y el saldo de la cuenta que usaste."
       },
       "categories": {
@@ -306,31 +304,43 @@
     "fields": {
       "type": "Tipo",
       "account": "Cuenta",
-      "from": "Origen",
-      "to": "Destino",
       "category": "Categoría",
       "product": "Producto",
       "store": "Tienda",
       "description": "Descripción",
       "date": "Fecha",
       "amount": "Monto",
-      "rate": "Tasa"
+      "rate": "Tasa",
+      "debt": "Deuda",
+      "kind": "Tipo de movimiento"
     },
     "pickProduct": "Elegir un producto…",
     "productHint": "Autocompleta la descripción con un producto de esta categoría.",
     "noStore": "Sin tienda",
     "storeHint": "Dónde se hizo la compra. Opcional.",
-    "rateHint": "Bolívares por 1 USD. Déjalo vacío para usar la tasa de la fecha elegida.",
-    "rateAuto": "Usar tasa del día",
+    "rateHint": "Bolívares por 1 USD. BCV y Paralelo siguen la fecha del movimiento; Manual congela la que escribas.",
+    "paidWith": "pagado con {amount}",
+    "debtHint": "Marca este movimiento como abono de una deuda.",
+    "debtRemaining": "Quedarán pendientes {amount} menos lo que abones ahora.",
+    "debtSettleHint": "La deuda quedará saldada aunque el monto no cubra lo pendiente.",
+    "debtModes": {
+      "partial": "Abono",
+      "settle": "Cancelar completa"
+    },
+    "paysDebt": "abono a {counterparty}",
+    "rateSources": {
+      "official": "BCV",
+      "parallel": "Paralelo",
+      "manual": "Manual"
+    },
     "noCategory": "Sin categoría",
-    "needSecondAccount": "Necesitas otra cuenta de la misma moneda para transferir.",
     "descriptionPlaceholder": "Ej. Mercado, Sueldo, Uber",
-    "transferPlaceholder": "Ej. Traspaso a ahorros",
     "save": "Guardar",
     "cancel": "Cancelar",
     "actions": {
       "edit": "Editar",
-      "delete": "Eliminar"
+      "delete": "Eliminar",
+      "more": "Más acciones"
     },
     "deleteConfirm": "¿Eliminar este movimiento? Esta acción no se puede deshacer.",
     "errors": {
@@ -347,7 +357,14 @@
       "from": "Desde",
       "to": "Hasta",
       "clear": "Limpiar"
-    }
+    },
+    "kinds": {
+      "income": "Ingreso",
+      "expense": "Gasto",
+      "debtPayment": "Pago de deuda",
+      "debtCollection": "Cobro de deuda"
+    },
+    "pickDebt": "Elige una deuda…"
   },
   "debts": {
     "new": "Nueva deuda",
@@ -385,7 +402,15 @@
       "date": "Fecha",
       "note": "Nota",
       "notePlaceholder": "Opcional",
-      "add": "Agregar abono"
+      "add": "Agregar abono",
+      "account": "Cuenta",
+      "accountHint": "El abono se registra como movimiento en esta cuenta, con la tasa del BCV de esa fecha.",
+      "needAccount": "Necesitas una cuenta para registrar el abono: el dinero tiene que salir de algún sitio.",
+      "settleAndPay": "Pagar y saldar",
+      "settleWithoutPayment": "Cerrar sin registrar pago",
+      "deleteWithTransaction": "Este abono vino de un movimiento. Al borrarlo también se borra el movimiento y el saldo de la cuenta vuelve atrás. ¿Continuar?",
+      "fromTransaction": "Ver en movimientos",
+      "fromTransactionHint": "Este abono viene de un movimiento. Para deshacerlo, borra el movimiento."
     },
     "actions": {
       "detail": "Detalle",
@@ -403,6 +428,7 @@
       "required": "Este campo es obligatorio.",
       "tooLong": "El texto es demasiado largo.",
       "amountRequired": "Ingresa un monto mayor que cero.",
+      "noRate": "No hay tasa del día para convertir. Actualiza las tasas e intenta de nuevo.",
       "generic": "No se pudo guardar. Intenta de nuevo.",
       "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
     }
